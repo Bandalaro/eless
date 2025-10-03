@@ -14,28 +14,29 @@ from src.core.state_manager import StateManager
 from src.core.error_handler import ErrorHandler
 from src.core.archiver import Archiver
 
+
 class TestErrorHandling(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Setup test environment."""
         # Create temporary directory
-        cls.temp_dir = tempfile.mkdtemp(prefix='eless_error_test_')
-        
+        cls.temp_dir = tempfile.mkdtemp(prefix="eless_error_test_")
+
         # Load test configuration
-        config_path = Path(__file__).parent / 'fixtures' / 'test_config.yaml'
-        with open(config_path, 'r') as f:
+        config_path = Path(__file__).parent / "fixtures" / "test_config.yaml"
+        with open(config_path, "r") as f:
             cls.config = yaml.safe_load(f)
-            
+
         # Update paths for testing
-        cls.cache_dir = tempfile.mkdtemp(prefix='eless_error_cache_')
-        cls.db_dir = tempfile.mkdtemp(prefix='eless_error_db_')
-        cls.config['cache']['directory'] = cls.cache_dir
-        cls.config['database']['path'] = str(Path(cls.db_dir) / 'test.db')
-        
+        cls.cache_dir = tempfile.mkdtemp(prefix="eless_error_cache_")
+        cls.db_dir = tempfile.mkdtemp(prefix="eless_error_db_")
+        cls.config["cache"]["directory"] = cls.cache_dir
+        cls.config["database"]["path"] = str(Path(cls.db_dir) / "test.db")
+
         # Copy test files
-        cls.fixtures_dir = Path(__file__).parent / 'fixtures'
-        cls.test_file = Path(cls.temp_dir) / 'sample.txt'
-        shutil.copy(cls.fixtures_dir / 'sample.txt', cls.test_file)
+        cls.fixtures_dir = Path(__file__).parent / "fixtures"
+        cls.test_file = Path(cls.temp_dir) / "sample.txt"
+        shutil.copy(cls.fixtures_dir / "sample.txt", cls.test_file)
 
     @classmethod
     def tearDownClass(cls):
@@ -54,23 +55,23 @@ class TestErrorHandling(unittest.TestCase):
     def test_file_access_error(self):
         """Test handling of file access errors."""
         # Create an unreadable file
-        unreadable_file = Path(self.temp_dir) / 'unreadable.txt'
+        unreadable_file = Path(self.temp_dir) / "unreadable.txt"
         unreadable_file.touch()
         os.chmod(unreadable_file, 0o000)
 
         # Attempt to process
-        with self.assertLogs(level='ERROR'):
+        with self.assertLogs(level="ERROR"):
             self.pipeline.run_process(str(unreadable_file))
 
         # Check error status
         file_hash = self.state_manager.get_file_hash(str(unreadable_file))
         status = self.state_manager.get_status(file_hash)
-        self.assertEqual(status, 'ERROR')
+        self.assertEqual(status, "ERROR")
 
         # Verify error was logged
         error_log = self.error_handler.get_error_log(file_hash)
         self.assertIsNotNone(error_log)
-        self.assertIn('permission denied', error_log.lower())
+        self.assertIn("permission denied", error_log.lower())
 
         # Cleanup
         os.chmod(unreadable_file, 0o666)
@@ -79,49 +80,52 @@ class TestErrorHandling(unittest.TestCase):
     def test_invalid_file_format(self):
         """Test handling of invalid file formats."""
         # Create a file with invalid content
-        invalid_file = Path(self.temp_dir) / 'invalid.bin'
-        with open(invalid_file, 'wb') as f:
+        invalid_file = Path(self.temp_dir) / "invalid.bin"
+        with open(invalid_file, "wb") as f:
             f.write(os.urandom(1024))  # Random binary data
 
         # Attempt to process
-        with self.assertLogs(level='ERROR'):
+        with self.assertLogs(level="ERROR"):
             self.pipeline.run_process(str(invalid_file))
 
         # Verify error handling
         file_hash = self.state_manager.get_file_hash(str(invalid_file))
         status = self.state_manager.get_status(file_hash)
-        self.assertEqual(status, 'ERROR')
+        self.assertEqual(status, "ERROR")
 
     def test_memory_error_recovery(self):
         """Test recovery from memory errors."""
         # Create a large file
-        large_file = Path(self.temp_dir) / 'large.txt'
-        with open(large_file, 'w') as f:
-            f.write('x' * (1024 * 1024 * 10))  # 10MB file
+        large_file = Path(self.temp_dir) / "large.txt"
+        with open(large_file, "w") as f:
+            f.write("x" * (1024 * 1024 * 10))  # 10MB file
 
         # Mock memory error during processing
-        with patch('src.processing.streaming_processor.StreamingDocumentProcessor.process_large_text_file') as mock_process:
+        with patch(
+            "src.processing.streaming_processor.StreamingDocumentProcessor.process_large_text_file"
+        ) as mock_process:
             mock_process.side_effect = MemoryError("Out of memory")
-            
-            with self.assertLogs(level='ERROR'):
+
+            with self.assertLogs(level="ERROR"):
                 self.pipeline.run_process(str(large_file))
 
         # Verify error state
         file_hash = self.state_manager.get_file_hash(str(large_file))
         status = self.state_manager.get_status(file_hash)
-        self.assertEqual(status, 'ERROR')
+        self.assertEqual(status, "ERROR")
 
         # Try processing with reduced batch size
-        self.config['chunking']['chunk_size'] = 1024  # Reduce chunk size
+        self.config["chunking"]["chunk_size"] = 1024  # Reduce chunk size
         new_pipeline = ElessPipeline(self.config)
         new_pipeline.run_process(str(large_file))
 
         # Verify recovery
         status = self.state_manager.get_status(file_hash)
-        self.assertEqual(status, 'LOADED')
+        self.assertEqual(status, "LOADED")
 
     def test_interrupted_processing(self):
         """Test recovery from interrupted processing."""
+
         def interrupt_handler():
             time.sleep(0.1)  # Wait for processing to start
             os.kill(os.getpid(), signal.SIGINT)
@@ -139,22 +143,24 @@ class TestErrorHandling(unittest.TestCase):
         # Verify partial state was saved
         file_hash = self.state_manager.get_file_hash(str(self.test_file))
         status = self.state_manager.get_status(file_hash)
-        self.assertNotEqual(status, 'LOADED')
+        self.assertNotEqual(status, "LOADED")
 
         # Resume processing
         self.pipeline.run_resume()
 
         # Verify completion
         status = self.state_manager.get_status(file_hash)
-        self.assertEqual(status, 'LOADED')
+        self.assertEqual(status, "LOADED")
 
     def test_database_error_recovery(self):
         """Test recovery from database errors."""
         # Mock database error
-        with patch('src.database.db_loader.DatabaseLoader._initialize_connectors') as mock_db:
+        with patch(
+            "src.database.db_loader.DatabaseLoader._initialize_connectors"
+        ) as mock_db:
             mock_db.side_effect = Exception("Database connection error")
-            
-            with self.assertLogs(level='ERROR'):
+
+            with self.assertLogs(level="ERROR"):
                 self.pipeline.run_process(str(self.test_file))
 
         # Verify error state
@@ -166,7 +172,7 @@ class TestErrorHandling(unittest.TestCase):
 
         # Verify recovery
         final_status = self.state_manager.get_status(file_hash)
-        self.assertEqual(final_status, 'LOADED')
+        self.assertEqual(final_status, "LOADED")
 
     def test_corrupted_cache_recovery(self):
         """Test recovery from corrupted cache."""
@@ -176,7 +182,7 @@ class TestErrorHandling(unittest.TestCase):
 
         # Corrupt the cache
         cache_file = Path(self.cache_dir) / f"{file_hash}.cache"
-        with open(cache_file, 'w') as f:
+        with open(cache_file, "w") as f:
             f.write("corrupted data")
 
         # Try processing again
@@ -184,7 +190,7 @@ class TestErrorHandling(unittest.TestCase):
 
         # Verify recovery
         status = self.state_manager.get_status(file_hash)
-        self.assertEqual(status, 'LOADED')
+        self.assertEqual(status, "LOADED")
 
         # Check if new cache is valid
         self.assertTrue(self.archiver.validate_cache(file_hash))
@@ -194,7 +200,7 @@ class TestErrorHandling(unittest.TestCase):
         # Create multiple files
         files = []
         for i in range(5):
-            file_path = Path(self.temp_dir) / f'test_{i}.txt'
+            file_path = Path(self.temp_dir) / f"test_{i}.txt"
             shutil.copy(self.test_file, file_path)
             files.append(file_path)
 
@@ -207,18 +213,16 @@ class TestErrorHandling(unittest.TestCase):
 
         # Check statuses
         statuses = [
-            self.state_manager.get_status(
-                self.state_manager.get_file_hash(str(f))
-            )
+            self.state_manager.get_status(self.state_manager.get_file_hash(str(f)))
             for f in files
         ]
 
         # Verify other files processed successfully
-        self.assertEqual(statuses[0], 'LOADED')
-        self.assertEqual(statuses[1], 'LOADED')
-        self.assertEqual(statuses[2], 'ERROR')  # Unreadable file
-        self.assertEqual(statuses[3], 'LOADED')
-        self.assertEqual(statuses[4], 'LOADED')
+        self.assertEqual(statuses[0], "LOADED")
+        self.assertEqual(statuses[1], "LOADED")
+        self.assertEqual(statuses[2], "ERROR")  # Unreadable file
+        self.assertEqual(statuses[3], "LOADED")
+        self.assertEqual(statuses[4], "LOADED")
 
         # Cleanup
         os.chmod(files[2], 0o666)
@@ -226,22 +230,23 @@ class TestErrorHandling(unittest.TestCase):
     def test_resource_limit_handling(self):
         """Test handling of resource limits."""
         # Set very strict resource limits
-        self.config['resource_limits']['memory_warning_percent'] = 10
-        self.config['resource_limits']['max_file_size_mb'] = 1
+        self.config["resource_limits"]["memory_warning_percent"] = 10
+        self.config["resource_limits"]["max_file_size_mb"] = 1
 
         # Create a file slightly over the limit
-        large_file = Path(self.temp_dir) / 'overlimit.txt'
-        with open(large_file, 'w') as f:
-            f.write('x' * (1024 * 1024 * 2))  # 2MB file
+        large_file = Path(self.temp_dir) / "overlimit.txt"
+        with open(large_file, "w") as f:
+            f.write("x" * (1024 * 1024 * 2))  # 2MB file
 
         # Attempt to process
-        with self.assertLogs(level='WARNING'):
+        with self.assertLogs(level="WARNING"):
             self.pipeline.run_process(str(large_file))
 
         # Verify adaptive processing
         file_hash = self.state_manager.get_file_hash(str(large_file))
         status = self.state_manager.get_status(file_hash)
-        self.assertEqual(status, 'LOADED')
+        self.assertEqual(status, "LOADED")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

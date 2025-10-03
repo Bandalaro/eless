@@ -2,30 +2,33 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List
 
-logger = logging.getLogger('ELESS.DBConnector')
+logger = logging.getLogger("ELESS.DBConnector")
+
 
 class DBConnectorBase(ABC):
     """
-    Abstract Base Class for all vector database connectors. 
-    All concrete database implementations (e.g., PineconeConnector) 
+    Abstract Base Class for all vector database connectors.
+    All concrete database implementations (e.g., PineconeConnector)
     must inherit from this class and implement its abstract methods.
     """
-    
+
     def __init__(self, config: Dict[str, Any], connection_name: str, dimension: int):
         """
-        Initializes the connector with configuration, the connection name 
+        Initializes the connector with configuration, the connection name
         (from default_config.yaml), and the required embedding dimension.
         """
         self.config = config
         self.connection_name = connection_name
-        self.db_config = config['databases']['connections'][connection_name]
+        self.db_config = config["databases"]["connections"][connection_name]
         self.dimension = dimension
-        logger.info(f"Base connector initialized for {connection_name} (Dim: {dimension}).")
+        logger.info(
+            f"Base connector initialized for {connection_name} (Dim: {dimension})."
+        )
 
     @abstractmethod
     def connect(self):
         """
-        Establishes the connection to the specific vector database and 
+        Establishes the connection to the specific vector database and
         performs any necessary setup (e.g., ensuring index/collection exists).
         """
         pass
@@ -36,7 +39,7 @@ class DBConnectorBase(ABC):
         Inserts or updates a batch of vector-chunk data into the database.
 
         Args:
-            vectors: A list of dictionaries, where each dict must contain 
+            vectors: A list of dictionaries, where each dict must contain
                      'id', 'vector', and 'metadata'.
         """
         pass
@@ -51,7 +54,7 @@ class DBConnectorBase(ABC):
     @abstractmethod
     def check_connection(self) -> bool:
         """
-        Verifies that the connection is active and the target resource 
+        Verifies that the connection is active and the target resource
         (index/collection) is ready for upsertion.
         """
         pass
@@ -59,6 +62,7 @@ class DBConnectorBase(ABC):
     def get_connection_name(self) -> str:
         """Helper to retrieve the connection name."""
         return self.connection_name
+
 
 # Example usage of the abstract method contract:
 #

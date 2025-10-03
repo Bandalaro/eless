@@ -19,6 +19,100 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+verify_env/
+deploy_env/
+env/
+.env/
+.venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+.project
+.pydevproject
+.settings/
+
+# Test / Coverage
+.tox/
+.coverage
+.coverage.*
+.cache
+coverage.xml
+*.cover
+.pytest_cache/
+htmlcov/
+
+# Documentation
+docs/_build/
+docs/api/
+
+# Logs and databases
+*.log
+.eless_logs/
+.eless_cache/
+*.db
+*.sqlite3
+
+# Local development
+.env
+.env.local
+*.local
+local_settings.py
+config/local_*.yaml
+config/local_*.yml
+config/local_*.json
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Package specific
+*.bin
+model_cache/
+embeddings_cache/
+vector_store/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Virtual Environment
 venv/

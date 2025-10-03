@@ -13,16 +13,22 @@ parallel_processing:
 
 embedding:
   batch_size: 32
-  model: "test-embedding-model"
+  model: "test-model"
   dimension: 384
   normalize: true
   cache_embeddings: true
+  model_path: "./models"
+  use_gpu: false
+  quantize: false
 
 chunking:
   chunk_size: 512
   chunk_overlap: 128
   min_chunk_size: 64
   skip_short_chunks: true
+  overlap_strategy: "simple"
+  text_splitter: "sentence"
+  language: "en"
 
 resource_limits:
   memory_warning_percent: 80
@@ -30,12 +36,17 @@ resource_limits:
   cpu_high_percent: 85
   min_memory_mb: 256
   max_file_size_mb: 100
+  max_memory_percent: 95
+  throttle_threshold: 85
 
 cache:
   directory: "/tmp/eless_test_cache"
   max_size_mb: 1024
   retention_days: 7
   compression: true
+  manifest_file: "cache_manifest.json"
+  chunk_format: "json"
+  max_chunk_size_mb: 10
 
 database:
   type: "sqlite"  # Use SQLite for testing
@@ -43,3 +54,21 @@ database:
   batch_size: 100
   max_retries: 3
   timeout: 30
+  chunk_table: "chunks"
+  metadata_table: "metadata"
+  vector_dimension: 384
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s | %(levelname)-8s | %(name)-12s | %(message)s"
+  directory: ".eless_logs"
+  max_size_mb: 10
+  backup_count: 5
+  file_logging: true
+  console_logging: true
+
+security:
+  enable_encryption: false
+  key_file: null
+  hash_algorithm: "sha256"
+  verify_checksums: true
