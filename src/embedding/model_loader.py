@@ -31,8 +31,8 @@ class ModelLoader:
         configuration.
         """
         self.config = config
-        self.model_name = config["embedding"]["model_name"]
-        self.device = config["embedding"]["device"]
+        self.model_name = config["embedding"]["model"]
+        self.device = config["embedding"].get("device", "cpu")
         self.model = self._load_model()
 
         if self.model:
@@ -43,7 +43,7 @@ class ModelLoader:
             )
         else:
             # Set default dimension from config or use a reasonable default
-            self.embedding_dimension = config["embedding"].get("dimensions", 384)
+            self.embedding_dimension = config["embedding"].get("dimension", 384)
             logger.error(f"Failed to load embedding model: {self.model_name}")
 
     @log_performance("ELESS.ModelLoader")
@@ -58,7 +58,7 @@ class ModelLoader:
             return None
 
         logger.info(
-            f"Loading embedding model: {self.model_name} on device: {self.device}"
+            f"Loading embedding model: {self.model_name} on device: {self.device if hasattr(self, 'device') else 'cpu'}"
         )
         try:
             # Setting trust_remote_code=True may be required for some custom models
