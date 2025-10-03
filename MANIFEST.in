@@ -1,0 +1,20 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+include requirements.txt
+include pyproject.toml
+include STORAGE_CONFIG.md
+include USER_CONFIGURABILITY_ANALYSIS.md
+include IMPROVEMENTS_SUMMARY.md
+recursive-include config *.yaml *.yml
+recursive-include src *.py *.yaml *.yml *.json
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store
+global-exclude .pytest_cache
+global-exclude *.egg-info
+global-exclude venv
+global-exclude .git
+global-exclude dist
+global-exclude build

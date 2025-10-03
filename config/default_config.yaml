@@ -1,0 +1,91 @@
+# ELESS Default Configuration
+
+# The cache directory for storing processed files and their states.
+cache:
+  directory: .eless_cache
+  manifest_file: manifest.json
+
+# Logging configuration
+logging:
+  # Log directory path
+  directory: .eless_logs
+  # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  level: INFO
+  # Enable console output
+  enable_console: true
+  # Maximum log file size in MB before rotation
+  max_file_size_mb: 10
+  # Number of backup files to keep
+  backup_count: 5
+
+# Settings for the low-resource embedding model.
+embedding:
+  model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  dimensions: 384
+  device: "cpu"
+  # batch_size for inference to manage memory on low-end PCs.
+  batch_size: 32
+
+# Parameters for splitting documents into smaller chunks.
+chunking:
+  chunk_size: 500
+  chunk_overlap: 50
+
+# Database configurations.
+# Specify the databases to load embeddings into.
+databases:
+  batch_size: 64
+  default:
+    drop_existing: false
+
+  # List of databases to use.
+  # Add or remove databases from this list to change the targets.
+  targets:
+    - chroma
+    # - faiss
+    # - qdrant
+    # - postgresql
+    # - cassandra
+
+  # Individual database connection settings.
+  connections:
+    # ChromaDB settings
+    chroma:
+      type: chroma
+      path: .eless_chroma
+
+    # FAISS settings
+    faiss:
+      type: faiss
+      index_path: .eless_faiss/index.faiss
+      metadata_path: .eless_faiss/metadata.json
+
+    # Qdrant settings
+    qdrant:
+      type: qdrant
+      host: localhost
+      port: 6333
+      api_key: null
+      collection_name: eless_embeddings
+      timeout: 30
+
+    # PostgreSQL/CockroachDB settings
+    postgresql:
+      type: postgresql
+      host: localhost
+      port: 5432
+      user: your_user
+      password: your_password
+      database: your_db
+      table_name: eless_embeddings
+      connection_timeout: 30
+
+    # Cassandra settings
+    cassandra:
+      type: cassandra
+      hosts:
+        - localhost
+      port: 9042
+      keyspace: eless_keyspace
+      table_name: eless_embeddings
+      replication_factor: 1

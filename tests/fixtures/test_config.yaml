@@ -1,0 +1,45 @@
+# Test configuration for ELESS pipeline
+parallel_processing:
+  max_workers: 2
+  mode: "thread"
+  enable_parallel_files: true
+  enable_parallel_chunks: true
+  enable_parallel_embedding: true
+  enable_parallel_database: true
+  chunk_batch_size: 5
+  file_batch_size: 2
+  adaptive_workers: true
+  resource_monitoring: true
+
+embedding:
+  batch_size: 32
+  model: "test-embedding-model"
+  dimension: 384
+  normalize: true
+  cache_embeddings: true
+
+chunking:
+  chunk_size: 512
+  chunk_overlap: 128
+  min_chunk_size: 64
+  skip_short_chunks: true
+
+resource_limits:
+  memory_warning_percent: 80
+  memory_critical_percent: 90
+  cpu_high_percent: 85
+  min_memory_mb: 256
+  max_file_size_mb: 100
+
+cache:
+  directory: "/tmp/eless_test_cache"
+  max_size_mb: 1024
+  retention_days: 7
+  compression: true
+
+database:
+  type: "sqlite"  # Use SQLite for testing
+  path: "/tmp/eless_test.db"
+  batch_size: 100
+  max_retries: 3
+  timeout: 30
