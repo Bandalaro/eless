@@ -11,6 +11,7 @@ include setup.py
 include STORAGE_CONFIG.md
 include USER_CONFIGURABILITY_ANALYSIS.md
 include IMPROVEMENTS_SUMMARY.md
+include PUBLISHING.md
 
 # Configuration files
 recursive-include config *.yaml
