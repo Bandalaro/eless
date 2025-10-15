@@ -78,6 +78,9 @@ def cli(ctx, log_level, log_dir, cache_dir, data_dir):
 
 @cli.command()
 @click.argument("source", type=click.Path(exists=True), required=True)
+@click.option("--dry-run", is_flag=True, help="Perform a dry run without actual processing")
+@click.option("--batch", is_flag=True, help="Enable batch processing mode")
+@click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 @click.option(
     "--config",
     type=click.Path(exists=True),
@@ -335,7 +338,7 @@ def process(
             file_id = file_meta.get("file_id") or file_meta.get(
                 "hash"
             )  # Support both formats
-            file_path = file_meta["path"]
+            file_path = str(file_meta["path"])
             status = state_manager.get_status(file_id)
 
             click.echo(
@@ -461,7 +464,7 @@ def process(
                                     "vector": vector,
                                     "metadata": {
                                         "file_id": file_id,
-                                        "file_path": file_path,
+                                        "file_path": str(file_path),
                                         "chunk_index": idx,
                                         "text": chunk["text"][
                                             :200
@@ -1379,6 +1382,94 @@ def monitor(ctx, config, interval, duration):
         click.echo("\n\nMonitoring stopped.")
     except Exception as e:
         click.secho(f"Monitoring error: {e}", fg="red")
+
+
+@cli.command()
+@click.pass_context
+def version(ctx):
+    """Show ELESS version information."""
+    click.echo("ELESS version 1.0.0")
+    click.echo("Evolving Low-resource Embedding and Storage System")
+
+
+@cli.command()
+@click.option(
+    "--config",
+    type=click.Path(exists=True),
+    default=None,
+    help="Path to a custom configuration file.",
+)
+@click.pass_context
+def resume(ctx, config):
+    """Resume processing from the last checkpoint."""
+    try:
+        config_path = (
+            Path(config)
+            if config
+            else (Path(DEFAULT_CONFIG_PATH) if DEFAULT_CONFIG_PATH else None)
+        )
+        config_loader = ConfigLoader(config_path)
+        cli_overrides = {}
+        if ctx.obj.get("log_level"):
+            cli_overrides["logging"] = {"level": ctx.obj["log_level"]}
+        if ctx.obj.get("log_dir"):
+            cli_overrides["logging"] = cli_overrides.get("logging", {})
+            cli_overrides["logging"]["directory"] = ctx.obj["log_dir"]
+        if ctx.obj.get("cache_dir"):
+            cli_overrides["cache"] = {"directory": ctx.obj["cache_dir"]}
+        if ctx.obj.get("data_dir"):
+            data_dir = ctx.obj["data_dir"]
+            if "logging" not in cli_overrides:
+                cli_overrides["logging"] = {}
+            if "cache" not in cli_overrides:
+                cli_overrides["cache"] = {}
+
+            if not ctx.obj.get("log_dir"):
+                cli_overrides["logging"]["directory"] = str(
+                    Path(data_dir) / ".eless_logs"
+                )
+            if not ctx.obj.get("cache_dir"):
+                cli_overrides["cache"]["directory"] = str(
+                    Path(data_dir) / ".eless_cache"
+                )
+
+        app_config = config_loader.get_final_config(None, **cli_overrides)
+
+        # Setup logging
+        eless_logger = setup_logging(app_config)
+        logger = logging.getLogger("ELESS.CLI")
+
+        # Initialize components
+        state_manager = StateManager(app_config)
+        archiver = Archiver(app_config)
+
+        # Find files that need resuming
+        all_hashes = state_manager.get_all_hashes()
+        pending_files = []
+
+        for file_hash in all_hashes:
+            status = state_manager.get_status(file_hash)
+            if status in ["PENDING", "CHUNKED", "EMBEDDED"]:
+                file_info = state_manager.manifest.get(file_hash, {})
+                file_path = file_info.get("path")
+                if file_path and Path(file_path).exists():
+                    pending_files.append((file_hash, file_path, status))
+
+        if not pending_files:
+            click.echo("No files found that need resuming.")
+            return
+
+        click.echo(f"Found {len(pending_files)} file(s) to resume:")
+        for file_hash, file_path, status in pending_files:
+            click.echo(f"  {os.path.basename(file_path)} - Status: {status}")
+
+        # Resume processing logic would go here
+        # For now, just show what would be resumed
+        click.echo("\nResume functionality not yet implemented.")
+        click.echo("Use 'eless process --resume <source>' instead.")
+
+    except Exception as e:
+        click.secho(f"Error resuming processing: {e}", fg="red")
 
 
 if __name__ == "__main__":

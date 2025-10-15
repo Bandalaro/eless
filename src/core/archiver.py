@@ -96,6 +96,12 @@ class Archiver:
             self.delete_archived_data(file_hash, "vectors")  # Clean up corrupted file
             return None
 
+    def validate_cache(self, file_hash: str) -> bool:
+        """Validates that both chunks and vectors exist and are loadable for the file."""
+        chunks = self.load_chunks(file_hash)
+        vectors = self.load_vectors(file_hash)
+        return chunks is not None and vectors is not None
+
     # --- Cleanup Method ---
 
     def delete_archived_data(self, file_hash: str, data_type: str):

@@ -45,6 +45,20 @@ class DBConnectorBase(ABC):
         pass
 
     @abstractmethod
+    def search(self, query_vector: List[float], limit: int = 10) -> List[Dict[str, Any]]:
+        """
+        Searches the database for similar vectors based on the query vector.
+
+        Args:
+            query_vector: Query vector
+            limit: Maximum number of results to return
+
+        Returns:
+            List of search results with scores and metadata
+        """
+        pass
+
+    @abstractmethod
     def close(self):
         """
         Closes the connection or releases resources used by the connector.

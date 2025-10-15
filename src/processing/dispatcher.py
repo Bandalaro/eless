@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 from typing import Dict, Any, List, Generator
 
@@ -79,6 +80,7 @@ class Dispatcher:
         self.parser_map = {
             ".txt": self._handle_text_file,
             ".md": self._handle_text_file,
+            ".bin": self._handle_binary_file,
         }
 
         # Add parsers conditionally based on availability
@@ -124,6 +126,10 @@ class Dispatcher:
             logger.error(f"Error reading text file {file_path.name}: {e}")
             return ""
 
+    def _handle_binary_file(self, file_path: Path) -> str:
+        """Handler for binary files - always return empty to trigger error."""
+        return ""
+
     def process_document(
         self, file_data: Dict[str, Any]
     ) -> Generator[Dict[str, Any], None, None]:
@@ -137,6 +143,20 @@ class Dispatcher:
         file_path: Path = file_data["path"]
         file_hash: str = file_data["hash"]
         extension: str = file_data["extension"]
+
+        # Check file size against limits
+        file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
+        max_file_size_mb = self.config.get("resource_limits", {}).get("max_file_size_mb", 100)
+        if file_size_mb > max_file_size_mb:
+            logger.warning(f"File {file_path} size {file_size_mb:.2f}MB exceeds limit of {max_file_size_mb}MB, processing anyway")
+
+        if file_hash == "ERROR":
+            # File that failed scanning
+            logger.error(f"Failed to scan file {file_path.name}")
+            self.state_manager.add_or_update_file(
+                "ERROR", str(file_path), FileStatus.ERROR, metadata={"error": "Failed to scan file"}
+            )
+            return
 
         current_status = self.state_manager.get_status(file_hash)
 
@@ -170,34 +190,106 @@ class Dispatcher:
                     f"Using streaming processing for large file: {file_path.name}"
                 )
 
-                # Process file using streaming
-                raw_text_chunks = list(
-                    self.streaming_processor.process_large_text_file(
-                        file_path=file_path,
-                        file_hash=file_hash,
-                        chunker_func=chunk_text,
+                try:
+                    # Process file using streaming
+                    raw_text_chunks = list(
+                        self.streaming_processor.process_large_text_file(
+                            file_path=file_path,
+                            file_hash=file_hash,
+                            chunker_func=chunk_text,
+                        )
                     )
-                )
-            else:
-                # Traditional processing for smaller files or non-text files
-                raw_text = self._get_raw_text(file_path, extension)
-                if not raw_text:
+                except Exception as e:
+                    logger.error(f"Error during streaming processing of {file_path.name}: {e}")
                     self.state_manager.add_or_update_file(
                         file_hash,
                         str(file_path),
                         FileStatus.ERROR,
-                        metadata={"error": "Failed to extract text."},
+                        metadata={"error": str(e)},
                     )
                     return
 
-                # Use the chunker (which will be defined next)
-                chunk_config = self.config["chunking"]
-                raw_text_chunks = chunk_text(
-                    raw_text=raw_text,
-                    file_hash=file_hash,
-                    chunk_size=chunk_config["chunk_size"],
-                    chunk_overlap=chunk_config["chunk_overlap"],
+            else:
+                # Traditional processing for smaller files or non-text files
+                try:
+                    raw_text = self._get_raw_text(file_path, extension)
+                    if not raw_text:
+                        logger.error(f"Failed to extract text from {file_path.name}")
+                        self.state_manager.add_or_update_file(
+                            file_hash,
+                            str(file_path),
+                            FileStatus.ERROR,
+                            metadata={"error": "Failed to extract text."},
+                        )
+                        return
+
+                    # Use the chunker (which will be defined next)
+                    chunk_config = self.config["chunking"]
+                    raw_text_chunks = chunk_text(
+                        raw_text=raw_text,
+                        file_hash=file_hash,
+                        chunk_size=chunk_config["chunk_size"],
+                        chunk_overlap=chunk_config["chunk_overlap"],
+                    )
+                except Exception as e:
+                    logger.error(f"Error during processing of {file_path.name}: {e}")
+                    self.state_manager.add_or_update_file(
+                        file_hash,
+                        str(file_path),
+                        FileStatus.ERROR,
+                        metadata={"error": str(e)},
+                    )
+                    return
+
+            if not raw_text_chunks:
+                self.state_manager.add_or_update_file(
+                    file_hash,
+                    str(file_path),
+                    FileStatus.ERROR,
+                    metadata={"error": "No chunks created."},
                 )
+                return
+
+            if not raw_text_chunks:
+                self.state_manager.add_or_update_file(
+                    file_hash,
+                    str(file_path),
+                    FileStatus.ERROR,
+                    metadata={"error": "No chunks created."},
+                )
+                return
+
+            else:
+                # Traditional processing for smaller files or non-text files
+                try:
+                    raw_text = self._get_raw_text(file_path, extension)
+                    if not raw_text:
+                        logger.error(f"Failed to extract text from {file_path.name}")
+                        self.state_manager.add_or_update_file(
+                            file_hash,
+                            str(file_path),
+                            FileStatus.ERROR,
+                            metadata={"error": "Failed to extract text."},
+                        )
+                        return
+
+                    # Use the chunker (which will be defined next)
+                    chunk_config = self.config["chunking"]
+                    raw_text_chunks = chunk_text(
+                        raw_text=raw_text,
+                        file_hash=file_hash,
+                        chunk_size=chunk_config["chunk_size"],
+                        chunk_overlap=chunk_config["chunk_overlap"],
+                    )
+                except Exception as e:
+                    logger.error(f"Error during processing of {file_path.name}: {e}")
+                    self.state_manager.add_or_update_file(
+                        file_hash,
+                        str(file_path),
+                        FileStatus.ERROR,
+                        metadata={"error": str(e)},
+                    )
+                    return
 
             if not raw_text_chunks:
                 self.state_manager.add_or_update_file(

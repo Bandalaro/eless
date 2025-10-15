@@ -79,8 +79,9 @@ class ErrorHandler:
     Provides consistent error reporting, dependency checking, and fallback strategies.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any], state_manager=None):
         self.config = config
+        self.state_manager = state_manager
         self.component_status: Dict[str, ComponentStatus] = {}
         self.error_counts: Dict[str, int] = {}
         self.failed_components: set = set()
@@ -350,6 +351,13 @@ class ErrorHandler:
             "available_parsers": self.get_available_parsers(),
             "available_databases": self.get_available_databases(),
         }
+
+    def get_error_log(self, file_hash: str) -> Optional[str]:
+        """Get the last error message for a file hash"""
+        if self.state_manager:
+            file_info = self.state_manager.manifest.get(file_hash, {})
+            return file_info.get("last_error")
+        return None
 
 
 # Decorator for automatic error handling

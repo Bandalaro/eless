@@ -19,6 +19,8 @@ class FaissConnector(DBConnectorBase):
         self.data_store: Dict[str, Dict[str, Any]] = (
             {}
         )  # To store metadata since Faiss only stores vectors
+        self.id_map: Dict[int, str] = {}  # int_id -> original_id
+        self.id_counter = 0
         self.save_path = Path(
             self.db_config.get("save_path", "./eless_cache/faiss_data")
         )
@@ -34,9 +36,9 @@ class FaissConnector(DBConnectorBase):
                 # Load metadata store (optional, for full recovery)
                 # NOTE: Metadata loading is omitted for brevity but required for full functionality
             else:
-                # Create a new index (e.g., Euclidean distance)
-                self.index = faiss.IndexFlatL2(self.dimension)
-                logger.info("Faiss index created (IndexFlatL2).")
+                # Create a new index with ID mapping
+                self.index = faiss.IndexIDMap(faiss.IndexFlatL2(self.dimension))
+                logger.info("Faiss index created (IndexIDMap with IndexFlatL2).")
 
         except Exception as e:
             logger.error(f"Failed to connect or set up Faiss: {e}")
@@ -48,19 +50,23 @@ class FaissConnector(DBConnectorBase):
         if not vectors:
             return
 
-        # 1. Prepare vectors for Faiss
+        # 1. Prepare vectors and ids for Faiss
         vector_array = np.array([v["vector"] for v in vectors], dtype="float32")
+        ids = []
 
-        # 2. Store metadata (Crucial, as Faiss doesn't store metadata)
+        # 2. Assign int ids and store mappings
         for v in vectors:
-            # We use the id to map vector to metadata
+            int_id = self.id_counter
+            self.id_counter += 1
+            ids.append(int_id)
+            self.id_map[int_id] = v["id"]
             self.data_store[v["id"]] = v["metadata"]
 
-        # 3. Add to Faiss index
+        ids_array = np.array(ids, dtype="int64")
+
+        # 3. Add to Faiss index with ids
         try:
-            # Faiss doesn't have an explicit upsert; we re-add (it handles duplicates/ID tracking based on implementation)
-            # For IndexFlat, we just add; ID tracking would require IndexIDMap
-            self.index.add(vector_array)
+            self.index.add_with_ids(vector_array, ids_array)
             logger.debug(f"Successfully added {len(vectors)} vectors to Faiss index.")
         except Exception as e:
             logger.error(f"Faiss upsert failed: {e}")
@@ -77,6 +83,39 @@ class FaissConnector(DBConnectorBase):
                 logger.warning(f"Error saving Faiss index: {e}")
         self.index = None
         self.data_store = {}
+
+    def search(self, query_vector: List[float], limit: int = 10) -> List[Dict[str, Any]]:
+        """
+        Searches the Faiss index for similar vectors.
+
+        Args:
+            query_vector: Query vector
+            limit: Maximum number of results
+
+        Returns:
+            List of search results
+        """
+        if not self.index:
+            raise ConnectionError("Faiss index not initialized.")
+
+        try:
+            query_array = np.array([query_vector], dtype="float32")
+            distances, indices = self.index.search(query_array, limit)
+            results = []
+            for i, idx in enumerate(indices[0]):
+                if idx != -1:  # Valid index
+                    original_id = self.id_map.get(idx)
+                    if original_id:
+                        metadata = self.data_store.get(original_id, {})
+                        results.append({
+                            "content": metadata.get("content", ""),
+                            "metadata": metadata,
+                            "score": float(distances[0][i])
+                        })
+            return results
+        except Exception as e:
+            logger.error(f"Faiss search failed: {e}")
+            return []
 
     def check_connection(self) -> bool:
         return self.index is not None

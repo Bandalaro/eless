@@ -28,7 +28,7 @@ def chunk_text(
         return []
 
     # Use a large set of common delimiters to try and preserve sentence boundaries
-    delimiters = ["\n\n", "\n", ". ", " ", ""]
+    delimiters = ["\n\n", "\n", ". ", " "]
 
     # 1. Initial Split by largest delimiter (e.g., paragraphs)
     current_splits = [raw_text]

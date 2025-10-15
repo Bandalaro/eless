@@ -1,4 +1,7 @@
 # Test configuration for ELESS pipeline
+processing:
+  supported_extensions: [".txt", ".md", ".pdf", ".docx", ".html", ".bin"]
+
 parallel_processing:
   max_workers: 2
   mode: "thread"
@@ -13,7 +16,7 @@ parallel_processing:
 
 embedding:
   batch_size: 32
-  model: "test-model"
+  model: "all-MiniLM-L6-v2"
   dimension: 384
   normalize: true
   cache_embeddings: true
@@ -48,15 +51,19 @@ cache:
   chunk_format: "json"
   max_chunk_size_mb: 10
 
-database:
-  type: "sqlite"  # Use SQLite for testing
-  path: "/tmp/eless_test.db"
+databases:
   batch_size: 100
-  max_retries: 3
-  timeout: 30
-  chunk_table: "chunks"
-  metadata_table: "metadata"
-  vector_dimension: 384
+  targets: ["chroma", "qdrant", "faiss"]
+  connections:
+    chroma:
+      type: "chroma"
+      path: "/tmp/eless_test_chroma"
+    qdrant:
+      type: "qdrant"
+      path: ":memory:"
+    faiss:
+      type: "faiss"
+      path: "/tmp/eless_test_faiss"
 
 logging:
   level: "INFO"

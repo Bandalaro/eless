@@ -1,10 +1,15 @@
 import logging
 from typing import Dict, Any
+import pickle
+import json
+from pathlib import Path
+import numpy as np
 
 # Import all core components
 from .core.config_loader import ConfigLoader
 from .core.state_manager import StateManager, FileStatus
 from .core.archiver import Archiver
+from .core.resource_monitor import ResourceMonitor
 
 # Import the processing components
 from .processing.file_scanner import FileScanner
@@ -48,6 +53,9 @@ class ElessPipeline:
         # 4. Database Loading
         # The DatabaseLoader will initialize concrete connectors (e.g., Chroma)
         self.db_loader = DatabaseLoader(config, self.state_manager, self.embedder)
+
+        # 5. Resource Monitoring
+        self.resource_monitor = ResourceMonitor(config)
 
         logger.info("ELESS pipeline components successfully initialized.")
 
@@ -105,22 +113,53 @@ class ElessPipeline:
 
     def run_resume(self):
         """
-        Executes the 'resume' command.
-
-        NOTE: Since all core resume logic is handled by the Dispatcher, Embedder,
-        and StateManager automatically, the resume command is largely
-        a simplified call to run_process, operating on the existing
-        manifest/cache files to pick up where it left off.
-
-        For a true resume, we'd need to re-read the original source path
-        from the manifest, which we don't store globally yet. For this phase,
-        we'll treat 'resume' as a flag to log the intent.
+        Executes the 'resume' command by loading cached vectors into databases.
         """
-        logger.info(
-            "Resume command invoked. Resumption logic is handled internally by the Dispatcher."
-        )
-        logger.info(
-            "To resume, typically the original source path would be re-provided or read from a session log."
-        )
-        # In a production system, this would load the 'last_source_path' from the cache/config
-        # self.run_process(last_source_path)
+        logger.info("Resume command invoked. Loading cached vectors into databases.")
+
+        # Initialize database connections if not already done
+        self.db_loader.initialize_database_connections()
+
+        # Scan cache for chunk files
+        cache_dir = Path(self.config["cache"]["directory"])
+        chunk_files = list(cache_dir.glob("*.chunks.pkl"))
+        if not chunk_files:
+            logger.info("No cached chunks found for resume.")
+            return
+
+        processed_files = set()
+        for chunks_path in chunk_files:
+            file_hash = chunks_path.stem.replace('.chunks', '')
+            try:
+                # Load chunks
+                with open(chunks_path, "rb") as f:
+                    chunks = pickle.load(f)
+
+                # Load vectors
+                vectors_path = cache_dir / f"{file_hash}.vectors.npy"
+                if not vectors_path.exists():
+                    continue
+                vectors = np.load(vectors_path)
+
+                # Combine into format for db_loader
+                vector_dicts = []
+                for i, chunk in enumerate(chunks):
+                    vector_dicts.append({
+                        "id": f"{file_hash}-{i}",
+                        "vector": vectors[i].tolist(),
+                        "metadata": chunk["metadata"]
+                    })
+
+                if vector_dicts:
+                    self.db_loader.batch_upsert(vector_dicts)
+                    processed_files.add(file_hash)
+                    logger.info(f"Resumed loading {len(vector_dicts)} vectors for {file_hash[:8]}")
+
+            except Exception as e:
+                logger.error(f"Failed to resume file {file_hash[:8]}: {e}")
+
+        # Update status to LOADED
+        for file_hash in processed_files:
+            self.state_manager.add_or_update_file(file_hash, "N/A", FileStatus.LOADED)
+
+        logger.info("Resume operation completed.")

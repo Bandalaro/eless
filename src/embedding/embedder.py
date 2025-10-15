@@ -255,3 +255,70 @@ class Embedder:
                 exc_info=True,
             )
             return []
+
+    def embed_and_archive_chunks(
+        self, chunks_generator: Generator[Dict[str, Any], None, None]
+    ) -> Generator[Dict[str, Any], None, None]:
+        """
+        Embed chunks from a generator and archive them.
+
+        Args:
+            chunks_generator: Generator yielding chunk dictionaries
+
+        Yields:
+            Chunks with vectors attached
+        """
+        from collections import defaultdict
+        file_chunks = defaultdict(list)
+
+        try:
+            for chunk in chunks_generator:
+                file_hash = chunk["metadata"]["file_hash"]
+                file_chunks[file_hash].append(chunk)
+
+            # Process each file's chunks
+            for file_hash, chunks in file_chunks.items():
+                embedded_chunks = self.embed_file_chunks(file_hash, chunks)
+                for chunk in embedded_chunks:
+                    yield chunk
+
+            logger.info("Completed embedding and archiving")
+
+        except Exception as e:
+            logger.error(f"Error in embedding and archiving: {e}", exc_info=True)
+
+    def _process_chunk_batch_for_archive(
+        self, chunk_batch: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Process a batch of chunks for embedding and archiving.
+
+        Args:
+            chunk_batch: List of chunk dictionaries to embed
+
+        Returns:
+            List of chunks with vectors attached
+        """
+        if not chunk_batch:
+            return []
+
+        texts = [chunk["text"] for chunk in chunk_batch]
+
+        try:
+            vectors = self.model_loader.embed_chunks(texts)
+
+            if vectors.shape[0] != len(texts):
+                logger.error(
+                    f"Vector count mismatch for batch. Expected {len(texts)}, got {vectors.shape[0]}"
+                )
+                return []
+
+            # Attach vectors to chunks
+            for i, chunk in enumerate(chunk_batch):
+                chunk["vector"] = vectors[i]
+
+            return chunk_batch
+
+        except Exception as e:
+            logger.error(f"Failed to embed chunk batch: {e}", exc_info=True)
+            return []

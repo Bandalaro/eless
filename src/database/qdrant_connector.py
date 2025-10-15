@@ -1,6 +1,7 @@
 import logging
 from typing import Dict, Any, List
 import os
+import uuid
 from .db_connector_base import DBConnectorBase
 from qdrant_client import QdrantClient, models
 from qdrant_client.http.exceptions import UnexpectedResponse
@@ -17,6 +18,7 @@ class QdrantConnector(DBConnectorBase):
         self.collection_name = self.db_config.get(
             "collection_name", "eless_qdrant_collection"
         )
+        self.path = self.db_config.get("path")
         self.host = self.db_config.get("host", "localhost")
         self.port = self.db_config.get("port", 6333)
         self.api_key = self.db_config.get("api_key") or os.environ.get("QDRANT_API_KEY")
@@ -24,17 +26,19 @@ class QdrantConnector(DBConnectorBase):
     def connect(self):
         try:
             # Initialize Qdrant client
-            self.client = QdrantClient(
-                host=self.host, port=self.port, api_key=self.api_key
-            )
+            if self.path:
+                self.client = QdrantClient(path=self.path)
+            else:
+                self.client = QdrantClient(
+                    host=self.host, port=self.port, api_key=self.api_key
+                )
 
             # Check for collection and create if needed
-            collections = self.client.get_collections().collections
-            if self.collection_name not in [c.name for c in collections]:
+            if not self.client.collection_exists(self.collection_name):
                 logger.info(
                     f"Qdrant collection '{self.collection_name}' not found. Creating..."
                 )
-                self.client.recreate_collection(
+                self.client.create_collection(
                     collection_name=self.collection_name,
                     vectors_config=models.VectorParams(
                         size=self.dimension, distance=models.Distance.COSINE
@@ -54,10 +58,12 @@ class QdrantConnector(DBConnectorBase):
 
         points = []
         for v in vectors:
-            # Qdrant uses 'points' for upserting
+            # Qdrant uses 'points' for upserting, use UUID for id
+            point_id = str(uuid.uuid4())
+            payload = {**v["metadata"], "file_id": v["id"]}
             points.append(
                 models.PointStruct(
-                    id=v["id"], vector=v["vector"], payload=v["metadata"]
+                    id=point_id, vector=v["vector"], payload=payload
                 )
             )
 
@@ -76,6 +82,38 @@ class QdrantConnector(DBConnectorBase):
     def close(self):
         self.client = None
         logger.debug("Qdrant connector closed.")
+
+    def search(self, query_vector: List[float], limit: int = 10) -> List[Dict[str, Any]]:
+        """
+        Searches the Qdrant collection for similar vectors.
+
+        Args:
+            query_vector: Query vector
+            limit: Maximum number of results
+
+        Returns:
+            List of search results
+        """
+        if not self.client:
+            raise ConnectionError("Qdrant client not initialized.")
+
+        try:
+            search_result = self.client.search(
+                collection_name=self.collection_name,
+                query_vector=query_vector,
+                limit=limit
+            )
+            results = []
+            for hit in search_result:
+                results.append({
+                    "content": hit.payload.get("content", ""),
+                    "metadata": hit.payload,
+                    "score": hit.score
+                })
+            return results
+        except Exception as e:
+            logger.error(f"Qdrant search failed: {e}")
+            return []
 
     def check_connection(self) -> bool:
         return (

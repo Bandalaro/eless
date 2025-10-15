@@ -28,6 +28,7 @@ class FileScanner:
             ".csv",
             ".html",
             ".md",
+            ".bin",
             # Add other extensions as parsers are built
         }
 
@@ -79,9 +80,23 @@ class FileScanner:
         if input_path.is_file():
             # Handle a single file input
             if input_path.suffix.lower() in self.supported_extensions:
-                file_data = self._process_file(input_path)
-                files_found.append(file_data)
-                logger.info(f"Found 1 supported file: {input_path.name}")
+                try:
+                    file_data = self._process_file(input_path)
+                    files_found.append(file_data)
+                    logger.info(f"Found 1 supported file: {input_path.name}")
+                except Exception as e:
+                    logger.error(
+                        f"Failed to process file {input_path}: {e}",
+                        exc_info=True,
+                    )
+                    # Add file with error status
+                    file_data = {
+                        "path": input_path,
+                        "hash": "ERROR",
+                        "file_id": "ERROR",
+                        "extension": input_path.suffix.lower(),
+                    }
+                    files_found.append(file_data)
             else:
                 logger.warning(
                     f"File {input_path.name} skipped: Unsupported extension {input_path.suffix}"
@@ -109,6 +124,14 @@ class FileScanner:
                                 f"Failed to process file {file_path}: {e}",
                                 exc_info=True,
                             )
+                            # Add file with error status
+                            file_data = {
+                                "path": file_path,
+                                "hash": "ERROR",
+                                "file_id": "ERROR",
+                                "extension": file_path.suffix.lower(),
+                            }
+                            files_found.append(file_data)
                             error_files += 1
                             # Continue to next file on error
                             continue

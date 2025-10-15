@@ -23,7 +23,7 @@ class TestParallelProcessor(unittest.TestCase):
                 "chunk_batch_size": 5,
                 "file_batch_size": 2,
             },
-            "embedding": {"batch_size": 32, "model": "test-model"},
+            "embedding": {"batch_size": 32, "model": "all-MiniLM-L6-v2"},
             "resource_limits": {
                 "memory_warning_percent": 80,
                 "memory_critical_percent": 90,

@@ -83,7 +83,7 @@ class DatabaseLoader:
                 embedding_model.get_sentence_embedding_dimension()
             )
         else:
-            self.embedding_dimension = config["embedding"]["dimensions"]
+            self.embedding_dimension = config["embedding"]["dimension"]
 
         logger.info(
             f"DatabaseLoader initializing with dimension: {self.embedding_dimension}"
@@ -97,6 +97,10 @@ class DatabaseLoader:
         logger.info(
             f"DatabaseLoader initialized. Active targets: {list(self.active_connectors.keys())}"
         )
+
+    def initialize_database_connections(self):
+        """Public method to initialize database connections."""
+        self._initialize_connectors()
 
     @log_performance("ELESS.DBLoader")
     def _initialize_connectors(self):
@@ -256,22 +260,64 @@ class DatabaseLoader:
                 # Only update status if ALL upsert batches that touched this file were successful.
                 # Files with FileStatus.LOADED are already skipped by the Dispatcher,
                 # so this marks files that were *just* processed and successfully loaded.
+                current_path = self.state_manager.manifest[file_hash]["path"]
                 self.state_manager.add_or_update_file(
-                    file_hash, status=FileStatus.LOADED, file_path="N/A (DB loaded)"
+                    file_hash, status=FileStatus.LOADED, file_path=current_path
                 )
                 logger.info(f"File {file_hash[:8]} status set to LOADED.")
             else:
                 # If loading failed for any reason (DB connection lost, upsert error),
                 # we revert the status to EMBEDDED so it can be re-tried on the next run.
                 # This assumes the file's chunks and vectors are still in cache.
+                current_path = self.state_manager.manifest[file_hash]["path"]
                 self.state_manager.add_or_update_file(
                     file_hash,
                     status=FileStatus.EMBEDDED,
-                    file_path="N/A (DB load failed, vectors retained)",
+                    file_path=current_path,
                 )
                 logger.warning(
                     f"File {file_hash[:8]} failed to load to one or more databases. Status reverted to EMBEDDED."
                 )
+
+    def search(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """
+        Search across all active database connectors.
+
+        Args:
+            query: Search query string
+            limit: Maximum number of results to return
+
+        Returns:
+            List of search results
+        """
+        # Embed the query
+        query_vector = self.embedding_model.embed_texts([query])[0]
+
+        all_results = []
+        for name, connector in self.active_connectors.items():
+            try:
+                results = connector.search(query_vector, limit)
+                all_results.extend(results)
+            except Exception as e:
+                logger.error(f"Search failed on {name}: {e}")
+
+        # Sort by score if available and limit
+        all_results.sort(key=lambda x: x.get("score", 0), reverse=True)
+        return all_results[:limit]
+
+    def batch_upsert(self, batch: List[Dict[str, Any]]):
+        """
+        Upsert a batch of data to all active databases.
+
+        Args:
+            batch: List of data entries to upsert
+        """
+        for name, connector in self.active_connectors.items():
+            try:
+                connector.upsert_batch(batch)
+                logger.debug(f"Batch upserted to {name}")
+            except Exception as e:
+                logger.error(f"Batch upsert failed on {name}: {e}")
 
     def close(self):
         """Closes all active database connections."""

@@ -1,4 +1,5 @@
 import json
+import hashlib
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 import logging
@@ -50,8 +51,13 @@ class StateManager:
 
     def _save_manifest(self):
         """Writes the current state of the manifest back to disk."""
+        def path_converter(obj):
+            if isinstance(obj, Path):
+                return str(obj)
+            raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+
         with open(self.manifest_path, "w") as f:
-            json.dump(self.manifest, f, indent=4)
+            json.dump(self.manifest, f, indent=4, default=path_converter)
 
     def get_status(self, file_hash: str) -> str:
         """Returns the current status of a file using its hash."""
@@ -93,7 +99,10 @@ class StateManager:
             # Handle error status specially
             if status == FileStatus.ERROR:
                 self.manifest[file_hash]["error_count"] += 1
-                self.manifest[file_hash]["last_error"] = self._get_current_timestamp()
+                if metadata and "error" in metadata:
+                    self.manifest[file_hash]["last_error"] = metadata["error"]
+                else:
+                    self.manifest[file_hash]["last_error"] = self._get_current_timestamp()
             elif status in [FileStatus.LOADED, FileStatus.EMBEDDED]:
                 # Reset error count on successful status
                 self.manifest[file_hash]["error_count"] = 0
@@ -266,3 +275,50 @@ class StateManager:
             "files_with_errors": files_with_errors,
             "manifest_size_kb": len(str(self.manifest)) / 1024,
         }
+
+    def get_file_hash(self, file_path: str) -> str:
+        """
+        Generates a SHA-256 hash based on the content of the file.
+        This is a utility method for computing file hashes.
+
+        Args:
+            file_path: Path to the file
+
+        Returns:
+            SHA-256 hash string
+        """
+        file_path = Path(file_path)
+        hasher = hashlib.sha256()
+        block_size = 65536  # 64kb
+
+        try:
+            with open(file_path, "rb") as f:
+                while True:
+                    data = f.read(block_size)
+                    if not data:
+                        break
+                    hasher.update(data)
+            return hasher.hexdigest()
+        except OSError as e:
+            logger.error(f"Error reading file {file_path} for hashing: {e}")
+            raise
+
+    def get_all_files(self) -> List[Dict[str, Any]]:
+        """
+        Get all files in the manifest with their status and path.
+
+        Returns:
+            List of dictionaries with file information
+        """
+        return [
+            {"path": file_info["path"], "status": file_info["status"]}
+            for file_info in self.manifest.values()
+        ]
+
+    def clear_state(self):
+        """
+        Clear all state by resetting the manifest to empty.
+        """
+        self.manifest = {}
+        self._save_manifest()
+        logger.info("State cleared")
