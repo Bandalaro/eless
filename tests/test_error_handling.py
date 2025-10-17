@@ -4,6 +4,7 @@ import shutil
 import os
 import signal
 import time
+import logging
 from pathlib import Path
 import yaml
 from unittest.mock import MagicMock, patch
@@ -44,6 +45,7 @@ class TestErrorHandling(unittest.TestCase):
         shutil.rmtree(cls.temp_dir, ignore_errors=True)
         shutil.rmtree(cls.cache_dir, ignore_errors=True)
         shutil.rmtree(cls.db_dir, ignore_errors=True)
+        logging.shutdown()
 
     def setUp(self):
         """Setup for each test."""

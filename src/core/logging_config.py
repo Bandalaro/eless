@@ -76,7 +76,7 @@ class ElessLogger:
         root_logger.addHandler(error_handler)
 
         # Create and configure console handler
-        if self.enable_console:
+        if self.enable_console and 'pytest' not in sys.modules:
             console_handler = logging.StreamHandler(sys.stdout)
             console_handler.setLevel(getattr(logging, self.log_level, logging.INFO))
             console_handler.setFormatter(console_formatter)

@@ -291,7 +291,7 @@ class DatabaseLoader:
             List of search results
         """
         # Embed the query
-        query_vector = self.embedding_model.embed_texts([query])[0]
+        query_vector = self.embedding_model.embed_chunks([query])[0]
 
         all_results = []
         for name, connector in self.active_connectors.items():
@@ -327,3 +327,4 @@ class DatabaseLoader:
                 logger.info(f"Closed connection to {name}.")
             except Exception as e:
                 logger.warning(f"Error closing connection to {name}: {e}")
+        self.initialized = False

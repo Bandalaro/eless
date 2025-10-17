@@ -101,22 +101,7 @@ class ChromaDBConnector(DBConnectorBase):
             logger.error(f"Failed to upsert batch to ChromaDB. Error: {e}")
             raise
 
-    def close(self):
-        """
-        Closes the connection. For LangChain's Chroma wrapper using PersistentClient,
-        this ensures data is written to disk.
-        """
-        if self.vector_store and self.persist:
-            try:
-                # Access the underlying client to call the persist method
-                self.vector_store._client.persist()
-                logger.info(
-                    "Chroma persistent client data flushed to disk via LangChain wrapper."
-                )
-            except Exception as e:
-                logger.warning(f"Error during Chroma client persistence/cleanup: {e}")
 
-        self.vector_store = None
 
     def search(self, query_vector: List[float], limit: int = 10) -> List[Dict[str, Any]]:
         """
@@ -129,22 +114,26 @@ class ChromaDBConnector(DBConnectorBase):
         Returns:
             List of search results
         """
-        if not self.vector_store:
-            raise ConnectionError("Chroma vector store is not initialized.")
+        if not self.collection:
+            raise ConnectionError("Chroma collection is not initialized.")
 
         try:
-            # Use LangChain's similarity_search_with_score
-            docs_and_scores = self.vector_store.similarity_search_with_score_by_vector(
-                query_vector, k=limit
+            # Use raw ChromaDB query
+            results = self.collection.query(
+                query_embeddings=[query_vector],
+                n_results=limit,
+                include=["documents", "metadatas", "distances"]
             )
-            results = []
-            for doc, score in docs_and_scores:
-                results.append({
-                    "content": doc.page_content,
-                    "metadata": doc.metadata,
-                    "score": score
-                })
-            return results
+            # Format results
+            formatted_results = []
+            if results and "documents" in results and results["documents"]:
+                for i in range(len(results["documents"][0])):
+                    formatted_results.append({
+                        "content": results["documents"][0][i],
+                        "metadata": results["metadatas"][0][i] if results["metadatas"] and results["metadatas"][0] else {},
+                        "score": results["distances"][0][i] if results["distances"] and results["distances"][0] else 0.0
+                    })
+            return formatted_results
         except Exception as e:
             logger.error(f"Chroma search failed: {e}")
             return []

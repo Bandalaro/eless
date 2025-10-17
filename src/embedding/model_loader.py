@@ -3,6 +3,7 @@ from typing import Dict, Any, List, Union, Optional
 from pathlib import Path
 
 import numpy as np
+import os
 
 # Import logging performance decorator
 from ..core.logging_config import log_performance
@@ -33,6 +34,8 @@ class ModelLoader:
         self.config = config
         self.model_name = config["embedding"]["model"]
         self.device = config["embedding"].get("device", "cpu")
+        self.model_path = config["embedding"].get("model_path", "./models")
+        os.makedirs(self.model_path, exist_ok=True)
         self.model = self._load_model()
 
         if self.model:
@@ -62,9 +65,17 @@ class ModelLoader:
         )
         try:
             # Setting trust_remote_code=True may be required for some custom models
+            model_path = os.path.join(self.model_path, "minilm_v2_local")
+            if os.path.exists(model_path):
+                model_name_or_path = model_path
+                local_files_only = True
+            else:
+                model_name_or_path = self.model_name
+                local_files_only = False
             model = SentenceTransformer(
-                model_name_or_path=self.model_name,
+                model_name_or_path=model_name_or_path,
                 device=self.device,
+                local_files_only=local_files_only,
                 trust_remote_code=self.config["embedding"].get(
                     "trust_remote_code", False
                 ),

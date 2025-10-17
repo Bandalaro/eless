@@ -15,9 +15,9 @@ parallel_processing:
   resource_monitoring: true
 
 embedding:
-  batch_size: 32
   model: "all-MiniLM-L6-v2"
   dimension: 384
+  batch_size: 1
   normalize: true
   cache_embeddings: true
   model_path: "./models"
@@ -53,20 +53,20 @@ cache:
 
 databases:
   batch_size: 100
-  targets: ["chroma", "qdrant", "faiss"]
+  targets: ["chroma"]
   connections:
     chroma:
       type: "chroma"
       path: "/tmp/eless_test_chroma"
     qdrant:
       type: "qdrant"
-      path: ":memory:"
+      path: "/tmp/eless_test_qdrant"
     faiss:
       type: "faiss"
       path: "/tmp/eless_test_faiss"
 
 logging:
-  level: "INFO"
+  level: "DEBUG"
   format: "%(asctime)s | %(levelname)-8s | %(name)-12s | %(message)s"
   directory: ".eless_logs"
   max_size_mb: 10

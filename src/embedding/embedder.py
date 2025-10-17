@@ -115,8 +115,11 @@ class Embedder:
 
             # Archive vectors and update state
             self.archiver.save_vectors(file_hash, vectors)
+            # Get current file path to preserve it
+            current_file_info = self.state_manager.manifest.get(file_hash, {})
+            current_path = current_file_info.get("path", "N/A")
             self.state_manager.add_or_update_file(
-                file_hash, "N/A (embedding complete)", FileStatus.EMBEDDED
+                file_hash, current_path, FileStatus.EMBEDDED
             )
             logger.info(
                 f"File {file_hash[:8]}: Generated and cached {vectors.shape[0]} embeddings"

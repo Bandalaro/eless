@@ -66,15 +66,16 @@ class ElessPipeline:
         Args:
             source_path: The file or directory containing documents to process.
         """
-        logger.info(f"Starting ELESS run for source: {source_path}")
-
         db_loader_initialized = False
+        logger.info(f"Starting ELESS run for source: {source_path}")
         try:
-            # Connect to databases before starting heavy lifting
-            self.db_loader._initialize_connectors()
-            if self.db_loader.active_connectors:
-                db_loader_initialized = True
+            self.db_loader.initialize_database_connections()
+            db_loader_initialized = True
+        except Exception as e:
+            logger.error(f"Failed to initialize database connections: {e}")
+            logger.warning("Continuing with processing but data will not be persisted to databases")
 
+        try:
             # STAGE 1: Scanning and Dispatching
             # Generates dictionaries of {'path', 'hash', 'extension'}
             file_generator = self.scanner.scan_input(source_path)
@@ -116,9 +117,11 @@ class ElessPipeline:
         Executes the 'resume' command by loading cached vectors into databases.
         """
         logger.info("Resume command invoked. Loading cached vectors into databases.")
-
-        # Initialize database connections if not already done
-        self.db_loader.initialize_database_connections()
+        try:
+            self.db_loader.initialize_database_connections()
+        except Exception as e:
+            logger.error(f"Failed to initialize database connections: {e}")
+            return
 
         # Scan cache for chunk files
         cache_dir = Path(self.config["cache"]["directory"])
@@ -158,8 +161,10 @@ class ElessPipeline:
             except Exception as e:
                 logger.error(f"Failed to resume file {file_hash[:8]}: {e}")
 
-        # Update status to LOADED
+        # Update status to LOADED (preserve existing paths)
         for file_hash in processed_files:
-            self.state_manager.add_or_update_file(file_hash, "N/A", FileStatus.LOADED)
+            current_file_info = self.state_manager.manifest.get(file_hash, {})
+            current_path = current_file_info.get("path", "N/A")
+            self.state_manager.add_or_update_file(file_hash, current_path, FileStatus.LOADED)
 
         logger.info("Resume operation completed.")
