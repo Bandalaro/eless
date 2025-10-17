@@ -50,14 +50,47 @@ class StateManager:
         return {}
 
     def _save_manifest(self):
-        """Writes the current state of the manifest back to disk."""
+        """
+        Writes the current state of the manifest back to disk atomically.
+        
+        Uses atomic write pattern to prevent corruption:
+        1. Write to temporary file
+        2. Create backup of existing manifest
+        3. Atomically replace with new file
+        """
         def path_converter(obj):
             if isinstance(obj, Path):
                 return str(obj)
             raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
 
-        with open(self.manifest_path, "w") as f:
-            json.dump(self.manifest, f, indent=4, default=path_converter)
+        # Write to temporary file first
+        tmp_path = self.manifest_path.with_suffix(".tmp")
+        backup_path = self.manifest_path.with_suffix(".bak")
+        
+        try:
+            # Write to temp file
+            with open(tmp_path, "w") as f:
+                json.dump(self.manifest, f, indent=4, default=path_converter)
+            
+            # Backup existing manifest if it exists
+            if self.manifest_path.exists():
+                if backup_path.exists():
+                    backup_path.unlink()
+                self.manifest_path.rename(backup_path)
+            
+            # Atomic rename (on same filesystem, this is atomic)
+            tmp_path.rename(self.manifest_path)
+            
+        except Exception as e:
+            logger.error(f"Failed to save manifest: {e}")
+            # Clean up temp file if it exists
+            if tmp_path.exists():
+                tmp_path.unlink()
+            # Restore from backup if main file is gone
+            if not self.manifest_path.exists() and backup_path.exists():
+                backup_path.rename(self.manifest_path)
+                logger.info("Restored manifest from backup")
+            raise
 
     def get_status(self, file_hash: str) -> str:
         """Returns the current status of a file using its hash."""
@@ -70,13 +103,30 @@ class StateManager:
     def add_or_update_file(
         self,
         file_hash: str,
-        file_path: str,
         status: str,
+        file_path: Optional[str] = None,
         metadata: Optional[Dict] = None,
     ):
-        """Adds a new file or updates the status and metadata of an existing one."""
+        """
+        Adds a new file or updates the status and metadata of an existing one.
+        
+        Args:
+            file_hash: SHA-256 hash of the file
+            status: New status (use FileStatus constants)
+            file_path: Optional file path. If None, existing path is preserved.
+                      Required for new files.
+            metadata: Optional metadata to merge
+            
+        Raises:
+            ValueError: If file_path is None for a new file
+        """
         try:
             if file_hash not in self.manifest:
+                # New file - path is required
+                if file_path is None:
+                    raise ValueError(
+                        f"file_path is required when adding new file {file_hash[:8]}"
+                    )
                 self.manifest[file_hash] = {
                     "path": file_path,
                     "timestamp": self._get_current_timestamp(),
@@ -92,8 +142,8 @@ class StateManager:
             self.manifest[file_hash]["status"] = status
             self.manifest[file_hash]["timestamp"] = self._get_current_timestamp()
 
-            # Update path if provided (handle path changes)
-            if file_path and file_path != "N/A":
+            # Only update path if explicitly provided
+            if file_path is not None:
                 self.manifest[file_hash]["path"] = file_path
 
             # Handle error status specially

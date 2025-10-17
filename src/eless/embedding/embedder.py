@@ -59,7 +59,7 @@ class Embedder:
             logger.info(f"Resuming {file_hash[:8]}. Loaded vectors from cache.")
             # Update status to EMBEDDED if it was previously CHUNKED or SCANNED
             self.state_manager.add_or_update_file(
-                file_hash, status=FileStatus.EMBEDDED, file_path="N/A (cached)"
+                file_hash, FileStatus.EMBEDDED
             )
             return vectors
         return None
@@ -115,11 +115,9 @@ class Embedder:
 
             # Archive vectors and update state
             self.archiver.save_vectors(file_hash, vectors)
-            # Get current file path to preserve it
-            current_file_info = self.state_manager.manifest.get(file_hash, {})
-            current_path = current_file_info.get("path", "N/A")
+            # Update status (path is preserved automatically)
             self.state_manager.add_or_update_file(
-                file_hash, current_path, FileStatus.EMBEDDED
+                file_hash, FileStatus.EMBEDDED
             )
             logger.info(
                 f"File {file_hash[:8]}: Generated and cached {vectors.shape[0]} embeddings"
@@ -132,7 +130,7 @@ class Embedder:
                 f"Failed to embed chunks for file {file_hash[:8]}: {e}", exc_info=True
             )
             self.state_manager.add_or_update_file(
-                file_hash, "N/A (embedding failed)", FileStatus.ERROR
+                file_hash, FileStatus.ERROR, metadata={"error": str(e)}
             )
             return []
 
@@ -216,7 +214,7 @@ class Embedder:
                 exc_info=True,
             )
             self.state_manager.add_or_update_file(
-                file_hash, "N/A (streaming embedding failed)", FileStatus.ERROR
+                file_hash, FileStatus.ERROR, metadata={"error": str(e)}
             )
 
     def _process_chunk_batch(

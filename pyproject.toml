@@ -6,7 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "eless"
 version = "1.0.0"
 authors = [
-    {name = "ELESS Team", email = "eless.team@example.com"},
+    {name = "Bandalaro", email = "bandalaro@users.noreply.github.com"},
+]
+maintainers = [
+    {name = "Bandalaro", email = "bandalaro@users.noreply.github.com"},
 ]
 description = "Evolving Low-resource Embedding and Storage System - A resilient RAG data processing pipeline with comprehensive logging, multi-database support, and CLI interface."
 readme = "README.md"
@@ -59,7 +62,7 @@ databases = [
 
 # Document parsing
 parsers = [
-    "PyPDF2>=3.0.0",
+    "pypdf>=3.17.0",
     "python-docx>=0.8.11",
     "openpyxl>=3.1.0",
     "pandas>=1.5.0",
@@ -78,7 +81,7 @@ full = [
     "faiss-cpu>=1.7.0",
     "psycopg2-binary>=2.9.0",
     "cassandra-driver>=3.28.0",
-    "PyPDF2>=3.0.0",
+    "pypdf>=3.17.0",
     "python-docx>=0.8.11",
     "openpyxl>=3.1.0",
     "pandas>=1.5.0",
@@ -96,27 +99,25 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/eless-team/eless"
-Documentation = "https://github.com/eless-team/eless#readme"
-Repository = "https://github.com/eless-team/eless.git"
-"Bug Tracker" = "https://github.com/eless-team/eless/issues"
-Changelog = "https://github.com/eless-team/eless/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/Bandalaro/eless"
+Documentation = "https://github.com/Bandalaro/eless/tree/main/docs"
+Repository = "https://github.com/Bandalaro/eless.git"
+"Bug Tracker" = "https://github.com/Bandalaro/eless/issues"
+Changelog = "https://github.com/Bandalaro/eless/blob/main/CHANGELOG.md"
+"Source Code" = "https://github.com/Bandalaro/eless"
 
 [project.scripts]
-eless = "src.cli:cli"
+eless = "eless.cli:cli"
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
+where = ["src"]
+include = ["eless*"]
 
 [tool.setuptools.package-data]
-"src" = ["**/*.yaml", "**/*.yml", "**/*.json", "**/*.txt"]
-"config" = ["*.yaml", "*.yml"]
-"*" = ["*.yaml", "*.yml", "*.json", "*.txt"]
+eless = ["**/*.yaml", "**/*.yml", "**/*.json", "**/*.txt"]
 
 [tool.setuptools.package-dir]
-"" = "."
-config = "config"
+"" = "src"
 
 [tool.black]
 line-length = 88

@@ -8,9 +8,9 @@ import os
 from copy import deepcopy
 from unittest.mock import patch
 
-from src.core.config_loader import ConfigLoader
-from src.core.state_manager import StateManager
-from src.core.resource_monitor import ResourceMonitor
+from eless.core.config_loader import ConfigLoader
+from eless.core.state_manager import StateManager
+from eless.core.resource_monitor import ResourceMonitor
 
 class TestConfigValidation(unittest.TestCase):
     @classmethod

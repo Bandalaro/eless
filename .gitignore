@@ -23,6 +23,7 @@ MANIFEST
 
 # Virtual Environment
 venv/
+test_env/
 verify_env/
 deploy_env/
 env/
@@ -42,6 +43,7 @@ ENV/
 
 # Test / Coverage
 .tox/
+.nox/
 .coverage
 .coverage.*
 .cache
@@ -50,14 +52,16 @@ coverage.xml
 .pytest_cache/
 htmlcov/
 
-# Documentation
+# Documentation builds
 docs/_build/
 docs/api/
 
 # Logs and databases
 *.log
 .eless_logs/
+eless_logs/
 .eless_cache/
+eless_cache/
 *.db
 *.sqlite3
 
@@ -69,6 +73,7 @@ local_settings.py
 config/local_*.yaml
 config/local_*.yml
 config/local_*.json
+.dev_docs/
 
 # OS generated files
 .DS_Store
@@ -86,59 +91,14 @@ Thumbs.db
 *.swp
 *~
 
-# Package specific
-*.bin
+# ELESS specific
 model_cache/
 embeddings_cache/
 vector_store/
+models/*
+!models/.gitkeep
+*.bin
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environment
-venv/
-test_env/
-ENV/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Test
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-
-# Logs
-*.log
-.eless_logs/
-
-# Cache
-.cache/
-.eless_cache/
-
-# Local config
-config/local_*.yaml
+# Backup files
+*.bak
+dispatcher.py.bak

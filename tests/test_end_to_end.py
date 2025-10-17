@@ -11,11 +11,11 @@ import subprocess
 from unittest.mock import patch
 import logging
 
-from src.eless_pipeline import ElessPipeline
-from src.core.state_manager import StateManager
-from src.core.config_loader import ConfigLoader
-from src.database.db_loader import DatabaseLoader
-from src.processing.dispatcher import Dispatcher
+from eless.eless_pipeline import ElessPipeline
+from eless.core.state_manager import StateManager
+from eless.core.config_loader import ConfigLoader
+from eless.database.db_loader import DatabaseLoader
+from eless.processing.dispatcher import Dispatcher
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG)
@@ -187,7 +187,7 @@ class TestEndToEnd(unittest.TestCase):
 
         # Run with interruption
         try:
-            with patch("src.processing.dispatcher.Dispatcher.process_document") as mock_process:
+            with patch("eless.processing.dispatcher.Dispatcher.process_document") as mock_process:
                 mock_process.side_effect = side_effect
                 self.pipeline.run_process(str(self.test_files_dir))
         except KeyboardInterrupt:
@@ -279,7 +279,7 @@ class TestEndToEnd(unittest.TestCase):
 
         for args in cli_tests:
             # Run CLI command directly (since eless may not be installed in dev environment)
-            from src.cli import cli
+            from eless.cli import cli
             from click.testing import CliRunner
             runner = CliRunner()
             result = runner.invoke(cli, args)
@@ -328,7 +328,7 @@ class TestEndToEnd(unittest.TestCase):
         self.pipeline.run_process(str(text_dir))
 
         # Get database loader with embedding model
-        from src.embedding.model_loader import ModelLoader
+        from eless.embedding.model_loader import ModelLoader
         model_loader = ModelLoader(self.config)
         if model_loader.model is None:
             self.skipTest("Database search requires sentence-transformers")

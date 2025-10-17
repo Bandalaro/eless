@@ -6,10 +6,10 @@ from pathlib import Path
 import yaml
 from unittest.mock import MagicMock, patch
 
-from src.eless_pipeline import ElessPipeline
-from src.core.config_loader import ConfigLoader
-from src.core.state_manager import StateManager
-from src.core.resource_monitor import ResourceMonitor
+from eless.eless_pipeline import ElessPipeline
+from eless.core.config_loader import ConfigLoader
+from eless.core.state_manager import StateManager
+from eless.core.resource_monitor import ResourceMonitor
 
 
 class TestPipelineIntegration(unittest.TestCase):

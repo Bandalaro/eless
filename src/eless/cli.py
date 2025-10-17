@@ -5,16 +5,16 @@ import logging
 from pathlib import Path
 from typing import List, Optional
 
-from src.core.state_manager import StateManager
-from src.processing.file_scanner import FileScanner
-from src.processing.dispatcher import Dispatcher
-from src.embedding.model_loader import ModelLoader
-from src.embedding.embedder import Embedder
-from src.database.db_loader import DatabaseLoader as DBFactory
-from src.core.archiver import Archiver
-from src.core.logging_config import setup_logging
-from src.core.config_loader import ConfigLoader
-from src.core.resource_monitor import ResourceMonitor
+from eless.core.state_manager import StateManager
+from eless.processing.file_scanner import FileScanner
+from eless.processing.dispatcher import Dispatcher
+from eless.embedding.model_loader import ModelLoader
+from eless.embedding.embedder import Embedder
+from eless.database.db_loader import DatabaseLoader as DBFactory
+from eless.core.archiver import Archiver
+from eless.core.logging_config import setup_logging
+from eless.core.config_loader import ConfigLoader
+from eless.core.resource_monitor import ResourceMonitor
 
 
 # --- Configuration Loading ---
@@ -366,7 +366,7 @@ def process(
                     )
 
                     chunks = dispatcher.parse_and_chunk(Path(file_path), file_meta)
-                    state_manager.add_or_update_file(file_id, file_path, "CHUNKED")
+                    state_manager.add_or_update_file(file_id, "CHUNKED", file_path=file_path)
                 elif status == "EMBEDDED" and resume:
                     click.secho(
                         "Status is EMBEDDED. Resuming from Vector Loading step.",
@@ -488,7 +488,7 @@ def process(
 
                 # Final Checkpoint
                 if all_success:
-                    state_manager.add_or_update_file(file_id, file_path, "LOADED")
+                    state_manager.add_or_update_file(file_id, "LOADED", file_path=file_path)
                     click.secho(
                         f"File {os.path.basename(file_path)} successfully LOADED.",
                         fg="green",
@@ -712,7 +712,7 @@ def test(ctx, config, test_db):
         # Test embedding model
         click.echo("\n1. Testing embedding model...")
         try:
-            from src.embedding.model_loader import ModelLoader
+            from eless.embedding.model_loader import ModelLoader
 
             model_loader = ModelLoader(app_config)
             embedding_model = model_loader._load_model()
@@ -740,7 +740,7 @@ def test(ctx, config, test_db):
             app_config["databases"]["targets"] = [test_db]
 
         try:
-            from src.database.db_loader import DatabaseLoader
+            from eless.database.db_loader import DatabaseLoader
 
             state_manager = StateManager(app_config)
             db_loader = DatabaseLoader(app_config, state_manager, embedding_model)
@@ -962,7 +962,7 @@ def cache(ctx, config, stats, cleanup, evict, clear):
         app_config = config_loader.get_final_config(None, **cli_overrides)
 
         # Initialize cache manager
-        from src.core.cache_manager import SmartCacheManager
+        from eless.core.cache_manager import SmartCacheManager
 
         cache_mgr = SmartCacheManager(app_config)
 
@@ -1056,7 +1056,7 @@ def config(ctx):
 def wizard(ctx, output):
     """Interactive configuration wizard."""
     try:
-        from src.core.config_wizard import ConfigWizard
+        from eless.core.config_wizard import ConfigWizard
 
         wizard = ConfigWizard()
         config_dict = wizard.run_wizard()
@@ -1084,7 +1084,7 @@ def wizard(ctx, output):
 def init(ctx, preset, output):
     """Generate preset configuration for different system types."""
     try:
-        from src.core.config_wizard import generate_preset_config
+        from eless.core.config_wizard import generate_preset_config
         import yaml
 
         config_dict = generate_preset_config(preset)
@@ -1201,7 +1201,7 @@ def auto_detect(ctx, output):
         click.echo(f"💡 Recommended configuration: {preset}")
 
         # Generate config
-        from src.core.config_wizard import generate_preset_config
+        from eless.core.config_wizard import generate_preset_config
 
         config_dict = generate_preset_config(preset)
 
@@ -1267,8 +1267,8 @@ def monitor(ctx, config, interval, duration):
         app_config = config_loader.get_final_config()
 
         # Initialize resource monitor
-        from src.core.resource_monitor import ResourceMonitor
-        from src.core.cache_manager import SmartCacheManager
+        from eless.core.resource_monitor import ResourceMonitor
+        from eless.core.cache_manager import SmartCacheManager
 
         resource_monitor = ResourceMonitor(app_config)
         cache_manager = SmartCacheManager(app_config)

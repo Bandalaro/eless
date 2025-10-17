@@ -165,6 +165,6 @@ class ElessPipeline:
         for file_hash in processed_files:
             current_file_info = self.state_manager.manifest.get(file_hash, {})
             current_path = current_file_info.get("path", "N/A")
-            self.state_manager.add_or_update_file(file_hash, current_path, FileStatus.LOADED)
+            self.state_manager.add_or_update_file(file_hash, FileStatus.LOADED, file_path=current_path)
 
         logger.info("Resume operation completed.")

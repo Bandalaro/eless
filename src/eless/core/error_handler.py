@@ -130,10 +130,10 @@ class ErrorHandler:
                 "test": lambda: __import__("cassandra"),
             },
             # Document parsers
-            "PyPDF2": {
+            "pypdf": {
                 "feature": "PDF document parsing",
-                "install": "pip install PyPDF2",
-                "test": lambda: __import__("PyPDF2"),
+                "install": "pip install pypdf",
+                "test": lambda: __import__("pypdf"),
             },
             "docx": {
                 "feature": "DOCX document parsing",
@@ -296,7 +296,7 @@ class ErrorHandler:
     def get_available_parsers(self) -> Dict[str, bool]:
         """Get list of available document parsers"""
         return {
-            "pdf": self.is_component_available("PyPDF2"),
+            "pdf": self.is_component_available("pypdf"),
             "docx": self.is_component_available("docx"),
             "xlsx": self.is_component_available("openpyxl"),
             "csv": self.is_component_available("pandas"),

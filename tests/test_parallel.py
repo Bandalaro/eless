@@ -6,8 +6,8 @@ import tempfile
 import os
 from unittest.mock import MagicMock, patch
 
-from src.processing.parallel_processor import ParallelProcessor, ParallelConfig
-from src.core.resource_monitor import ResourceMonitor
+from eless.processing.parallel_processor import ParallelProcessor, ParallelConfig
+from eless.core.resource_monitor import ResourceMonitor
 
 
 class TestParallelProcessor(unittest.TestCase):
@@ -99,7 +99,7 @@ class TestParallelProcessor(unittest.TestCase):
     def test_adaptive_workers(self):
         # Test worker count adaptation under high memory pressure
         with patch(
-            "src.core.resource_monitor.ResourceMonitor.should_throttle_processing"
+            "eless.core.resource_monitor.ResourceMonitor.should_throttle_processing"
         ) as mock_throttle:
             # Simulate high memory pressure
             mock_throttle.return_value = (True, "High memory usage")

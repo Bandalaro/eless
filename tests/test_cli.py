@@ -8,7 +8,7 @@ import yaml
 import json
 from click.testing import CliRunner
 
-from src.cli import cli
+from eless.cli import cli
 
 
 class TestCLI(unittest.TestCase):
