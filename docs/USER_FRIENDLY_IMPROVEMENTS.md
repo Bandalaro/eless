@@ -2,9 +2,9 @@
 
 Making ELESS easier to use for everyone.
 
-## 🎯 Key Improvements to Implement
+## Key Improvements to Implement
 
-### 1. Interactive Setup Wizard ⭐ HIGH PRIORITY
+### 1. Interactive Setup Wizard HIGH PRIORITY
 **Problem:** Users don't know how to configure ELESS  
 **Solution:** Add `eless init` command for guided setup
 
@@ -17,7 +17,7 @@ eless init
 # - Directory setup
 ```
 
-### 2. Smart Auto-Configuration ⭐ HIGH PRIORITY
+### 2. Smart Auto-Configuration HIGH PRIORITY
 **Problem:** Configuration is complex  
 **Solution:** Auto-detect system resources and set optimal defaults
 
@@ -29,21 +29,21 @@ eless init
 - Free disk space → Sets cache limits
 ```
 
-### 3. Better Progress Indicators ⭐ HIGH PRIORITY
+### 3. Better Progress Indicators HIGH PRIORITY
 **Problem:** Users don't know what's happening  
 **Solution:** Add rich progress bars and status updates
 
 ```bash
-Processing documents: ━━━━━━━━━━━━━━━━━━ 75% (150/200 files)
-├─ Scanning: ✓ Complete
-├─ Chunking: ━━━━━━━━━━━━━ 80%
-├─ Embedding: ━━━━━━━━ 60%
-└─ Loading: ━━━━ 30%
+Processing documents: 75% (150/200 files)
+- Scanning: Complete
+- Chunking: 80%
+- Embedding: 60%
+- Loading: 30%
 
 Estimated time remaining: 5 minutes
 ```
 
-### 4. One-Command Quick Start ⭐ HIGH PRIORITY
+### 4. One-Command Quick Start HIGH PRIORITY
 **Problem:** Too many steps to get started  
 **Solution:** Single command that "just works"
 
@@ -66,7 +66,7 @@ eless demo
 # Shows all features in action
 ```
 
-### 6. Better Error Messages ⭐ HIGH PRIORITY
+### 6. Better Error Messages HIGH PRIORITY
 **Problem:** Cryptic error messages  
 **Solution:** Actionable, helpful errors
 
@@ -110,7 +110,7 @@ eless config create --template high-performance
 eless config create --template low-memory
 ```
 
-### 9. Health Check Command ⭐ HIGH PRIORITY
+### 9. Health Check Command HIGH PRIORITY
 **Problem:** Users don't know if setup is correct  
 **Solution:** Diagnostic command
 
@@ -118,17 +118,16 @@ eless config create --template low-memory
 eless doctor
 
 Checking ELESS installation...
-✓ Python version: 3.12.3
-✓ Core dependencies: All installed
-✓ Embedding model: Found (all-MiniLM-L6-v2)
-✓ ChromaDB: Installed and working
-✗ Qdrant: Not installed
-  → Install with: pip install qdrant-client
-✓ Disk space: 50GB available
-✓ Memory: 8GB available
-✓ Configuration: Valid
+Python version: 3.12.3
+Core dependencies: All installed
+Embedding model: Found (all-MiniLM-L6-v2)
+ChromaDB: Installed and working
 
-Overall health: Good ✓
+Disk space: 50GB available
+Memory: 8GB available
+Configuration: Valid
+
+Overall health: Good
 ```
 
 ### 10. Smart Defaults 🎨 MEDIUM PRIORITY
@@ -236,7 +235,7 @@ def run_setup_wizard():
     with open(config_path, "w") as f:
         yaml.dump(config, f)
     
-    console.print("\n[bold green]✓ Setup complete![/bold green]")
+    console.print("\n[bold green]Setup complete![/bold green]")
     console.print(f"Config saved to: {config_path}")
     console.print("\nTry it now: [bold]eless process /path/to/documents[/bold]")
 ```
@@ -431,7 +430,7 @@ def run_health_check():
     
     all_good = True
     for name, result in checks:
-        status = "✓" if result["ok"] else "✗"
+        status = "OK" if result["ok"] else "FAIL"
         style = "green" if result["ok"] else "red"
         
         table.add_row(
@@ -446,7 +445,7 @@ def run_health_check():
     console.print(table)
     
     if all_good:
-        console.print("\n[bold green]Overall health: Excellent ✓[/bold green]")
+        console.print("\n[bold green]Overall health: Excellent[/bold green]")
     else:
         console.print("\n[bold yellow]Some issues found. See above for details.[/bold yellow]")
 ```
@@ -516,13 +515,13 @@ echo "Running setup wizard..."
 eless init
 
 echo ""
-echo "✓ Installation complete!"
+echo "Installation complete!"
 echo "Try: eless demo"
 ```
 
 ---
 
-## 🎯 Implementation Checklist
+## Implementation Checklist
 
 ### Immediate (This Week)
 - [ ] Add `rich` dependency for progress bars
