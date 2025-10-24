@@ -7,20 +7,33 @@
 
 A resilient RAG (Retrieval-Augmented Generation) data processing pipeline with comprehensive logging, multi-database support, and an intuitive CLI interface. Built for efficiency on low-resource systems while maintaining production-grade reliability.
 
-## ✨ Features
+## Features
 
-- 🎯 **Multi-Database Support**: ChromaDB, Qdrant, FAISS, PostgreSQL, Cassandra
-- 📄 **Multiple File Formats**: PDF, DOCX, TXT, MD, HTML, and more
-- 🔄 **Resumable Processing**: Checkpoint-based system for interrupted workflows
-- 📊 **Comprehensive Logging**: Structured logs with rotation and performance tracking
-- 💾 **Smart Caching**: Content-based hashing and atomic manifest writes
-- 🧠 **Flexible Embeddings**: Support for various sentence-transformers models
-- ⚡ **Memory Efficient**: Streaming processing for large files
-- 🛡️ **Production Ready**: Graceful error handling and data safety features
-- 🔧 **CLI Interface**: Easy-to-use command-line tools
-- 📦 **Modular Design**: Extensible architecture for custom parsers and databases
+- **Multi-Database Support**: ChromaDB, Qdrant, FAISS, PostgreSQL, Cassandra (install extras for full support)
+- **Multiple File Formats**: PDF, DOCX, TXT, MD, HTML, and more (install parsers extra)
+- **Resumable Processing**: Checkpoint-based system for interrupted workflows
+- **Comprehensive Logging**: Structured logs with rotation and performance tracking
+- **Smart Caching**: Content-based hashing and atomic manifest writes
+- **Flexible Embeddings**: Support for various sentence-transformers models (install embeddings extra)
+- **Memory Efficient**: Streaming processing for large files
+- **Production Ready**: Graceful error handling and data safety features
+- **CLI Interface**: Easy-to-use command-line tools
+- **Modular Design**: Extensible architecture for custom parsers and databases
 
-## 🚀 Quick Start
+**Note**: ELESS gracefully handles missing optional dependencies with warnings. Install extras for full features.
+
+## Project Structure
+
+For contributors, the project is organized as follows:
+
+- `src/`: Source code for the ELESS package
+- `tests/`: Unit and integration tests
+- `docs/`: Documentation, including user guides, API reference, and contributing guidelines
+- `tools/`: Utility scripts for deployment, packaging, and verification
+- `config/`: Configuration files and templates
+- `build/`: Build configuration files (setup.py, pyproject.toml, etc.)
+
+## Quick Start
 
 ### Installation
 
@@ -30,8 +43,11 @@ git clone https://github.com/Bandalaro/eless.git
 cd eless
 pip install -e .
 
-# Or install with all features
+# Install with all features (recommended for full functionality)
 pip install -e ".[full]"
+
+# Or install specific extras
+pip install -e ".[embeddings,databases,parsers]"
 ```
 
 ### Basic Usage
@@ -190,14 +206,14 @@ streaming:
   auto_streaming_threshold: 0.7
 ```
 
-## 📚 Documentation
+## Documentation
 
 - **[Quick Start Guide](docs/QUICK_START.md)** - Get started in 5 minutes
 - **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation
 - **[Developer Guide](docs/DEVELOPER_GUIDE.md)** - Contributing and development
 - **[Documentation Index](docs/README.md)** - All documentation
 
-## 🎯 Use Cases
+## Use Cases
 
 ### Document Processing Pipeline
 ```bash
@@ -227,7 +243,7 @@ for dir in dataset1 dataset2 dataset3; do
 done
 ```
 
-## 🔧 CLI Commands
+## CLI Commands
 
 ### Process Documents
 ```bash
@@ -259,7 +275,7 @@ eless test                 # Run system tests
 eless logs [--days N]      # Manage log files
 ```
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -274,9 +290,9 @@ pytest tests/ --cov=src --cov-report=html
 # Test results: 56/56 passing ✅
 ```
 
-## 🤝 Contributing
+## Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions! Please see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
 
 ### Development Setup
 
@@ -300,7 +316,7 @@ black src/ tests/
 flake8 src/ tests/
 ```
 
-## 📈 Performance
+## Performance
 
 ### Optimized for Low-Resource Systems
 ```yaml
@@ -329,7 +345,7 @@ parallel:
   max_workers: 8
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -363,15 +379,15 @@ parallel:
 
 See [docs/QUICK_START.md](docs/QUICK_START.md#troubleshooting) for more solutions.
 
-## 📊 Project Status
+## Project Status
 
-- ✅ **56/56 tests passing**
-- ✅ **Zero warnings**
-- ✅ **Production ready**
-- ✅ **Comprehensive documentation**
-- ✅ **Active development**
+- **56/56 tests passing**
+- **Zero warnings**
+- **Production ready**
+- **Comprehensive documentation**
+- **Active development**
 
-## 🗺️ Roadmap
+## Roadmap
 
 - [ ] PyPI publication
 - [ ] Additional database connectors (Milvus, Weaviate)
@@ -380,28 +396,28 @@ See [docs/QUICK_START.md](docs/QUICK_START.md#troubleshooting) for more solution
 - [ ] Distributed processing
 - [ ] Advanced query capabilities
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [docs/LICENSE](docs/LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [sentence-transformers](https://www.sbert.net/)
 - Supports [ChromaDB](https://www.trychroma.com/), [Qdrant](https://qdrant.tech/), and more
 - Powered by the Python ecosystem
 
-## 📞 Support
+## Support
 
 - **Issues**: [GitHub Issues](https://github.com/Bandalaro/eless/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/Bandalaro/eless/discussions)
 - **Documentation**: [docs/](docs/)
 
-## ⭐ Star History
+## Star History
 
 If you find ELESS useful, please consider giving it a star on GitHub!
 
 ---
 
-**Made with ❤️ by [Bandalaro](https://github.com/Bandalaro)**
+**Made with love by [Bandalaro](https://github.com/Bandalaro)**
 
 **Status: Production Ready** | **Version: 1.0.0**

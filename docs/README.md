@@ -2,7 +2,7 @@
 
 Complete documentation for the ELESS (Evolving Low-resource Embedding and Storage System).
 
-## 📚 Documentation Index
+## Documentation Index
 
 ### For Users
 
@@ -44,19 +44,19 @@ Complete documentation for the ELESS (Evolving Low-resource Embedding and Storag
 
 ### Project Documentation
 
-- **[Test Summary](../TEST_AND_DEBUG_SUMMARY.md)** - Testing and debugging report
+- **[Test Summary](../tests/)** - Testing and debugging report
   - Test results (56/56 passing)
   - Bug fixes
   - Code improvements
   - Recommendations
 
-- **[Changelog](../CHANGELOG.md)** - Version history and changes
-- **[Contributing](../CONTRIBUTING.md)** - Contribution guidelines
-- **[License](../LICENSE)** - MIT License
+- **[Changelog](CHANGELOG.md)** - Version history and changes
+- **[Contributing](CONTRIBUTING.md)** - Contribution guidelines
+- **[License](LICENSE)** - MIT License
 
 ---
 
-## 📖 Reading Guide
+## Reading Guide
 
 ### I'm a New User
 
@@ -90,7 +90,7 @@ Check these:
 
 ---
 
-## 🎯 Documentation by Topic
+## Documentation by Topic
 
 ### Installation & Setup
 - [Quick Start - Installation](QUICK_START.md#installation)
@@ -149,7 +149,7 @@ Check these:
 
 ---
 
-## 📊 Documentation Statistics
+## Documentation Statistics
 
 - **Total Pages:** 4 major documents
 - **Total Lines:** ~3,500 lines
@@ -159,7 +159,7 @@ Check these:
 
 ---
 
-## 🔍 Quick Reference
+## Quick Reference
 
 ### Most Common Tasks
 
@@ -199,21 +199,21 @@ Check these:
 
 ---
 
-## 🆕 Recent Updates
+## Recent Updates
 
 ### October 2025
 
-- ✅ All 56 tests passing
-- 🐛 Fixed file path overwriting bug
-- 📚 Created comprehensive documentation
-- 📖 Added Quick Start Guide
-- 📘 Added API Reference
-- 📗 Added Developer Guide
-- 📝 Added Test Summary
+- All 56 tests passing
+- Fixed file path overwriting bug
+- Created comprehensive documentation
+- Added Quick Start Guide
+- Added API Reference
+- Added Developer Guide
+- Added Test Summary
 
 ---
 
-## 🤝 Getting Help
+## Getting Help
 
 ### Documentation Not Clear?
 
@@ -228,20 +228,20 @@ Check these:
 
 ### Want to Contribute?
 
-- Read [Contributing Guidelines](../CONTRIBUTING.md)
+- Read [Contributing Guidelines](CONTRIBUTING.md)
 - Read [Developer Guide](DEVELOPER_GUIDE.md)
 - Check [Open Issues](https://github.com/Bandalaro/eless/issues)
 
 ---
 
-## 📝 Documentation Improvements
+## Documentation Improvements
 
 We welcome documentation improvements! To contribute:
 
 1. Fork the repository
 2. Edit the relevant `.md` file
 3. Submit a pull request
-4. Follow the [Contributing Guidelines](../CONTRIBUTING.md)
+4. Follow the [Contributing Guidelines](CONTRIBUTING.md)
 
 ### Documentation Style Guide
 
@@ -254,13 +254,13 @@ We welcome documentation improvements! To contribute:
 
 ---
 
-## 📄 License
+## License
 
-All documentation is licensed under MIT License - See [LICENSE](../LICENSE) file for details.
+All documentation is licensed under MIT License - See [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🔗 External Resources
+## External Resources
 
 ### Vector Databases
 - [ChromaDB Documentation](https://docs.trychroma.com/)
@@ -281,4 +281,4 @@ All documentation is licensed under MIT License - See [LICENSE](../LICENSE) file
 
 **Last Updated:** October 17, 2025  
 **Version:** 1.0.0  
-**Status:** Production Ready ✅
+**Status:** Production Ready

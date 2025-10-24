@@ -1,10 +1,10 @@
 # ELESS User-Friendly Features Guide
 
-## 🎉 New Features Overview
+## New Features Overview
 
 ELESS now includes comprehensive user-friendly features that make it easy for anyone to get started, from complete beginners to advanced users.
 
-## 🚀 Quick Commands Reference
+## Quick Commands Reference
 
 ### For First-Time Users
 
@@ -78,7 +78,7 @@ eless monitor
 eless status --all
 ```
 
-## 📚 Feature Details
+## Feature Details
 
 ### 1. Interactive Tutorial Mode
 
@@ -271,7 +271,7 @@ eless go /path/to/documents --database qdrant
 
 ---
 
-## 🎯 User Journey Examples
+## User Journey Examples
 
 ### Complete Beginner
 
@@ -388,7 +388,7 @@ for dir in docs1/ docs2/ docs3/; do
 done
 ```
 
-## 📖 Related Documentation
+## Related Documentation
 
 - [README.md](../README.md) - Main documentation
 - [USER_FRIENDLY_IMPROVEMENTS.md](../USER_FRIENDLY_IMPROVEMENTS.md) - Feature details
@@ -414,14 +414,14 @@ eless demo --help
 
 ELESS is now incredibly user-friendly with:
 
-- ✅ **Tutorial mode** for learning
-- ✅ **Demo mode** for trying
-- ✅ **Interactive mode** for guided processing
-- ✅ **Templates** for quick configuration
-- ✅ **Auto-detection** for optimal settings
-- ✅ **Health checks** for troubleshooting
-- ✅ **Quick commands** for common tasks
-- ✅ **Comprehensive help** for self-service
+- **Tutorial mode** for learning
+- **Demo mode** for trying
+- **Interactive mode** for guided processing
+- **Templates** for quick configuration
+- **Auto-detection** for optimal settings
+- **Health checks** for troubleshooting
+- **Quick commands** for common tasks
+- **Comprehensive help** for self-service
 
 **Most users only need to know:**
 ```bash

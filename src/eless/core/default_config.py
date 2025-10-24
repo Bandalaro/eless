@@ -76,7 +76,7 @@ DEFAULT_CONFIG = {
     "databases": {
         "batch_size": 64,
         "default": {"drop_existing": False},
-        "targets": ["chroma"],
+        "targets": [],  # Empty by default; users should add based on installed dependencies
         "connections": {
             "chroma": {
                 "type": "chroma",

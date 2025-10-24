@@ -6,12 +6,12 @@ Get started with ELESS in 5 minutes!
 
 ELESS (Evolving Low-resource Embedding and Storage System) is a powerful yet lightweight RAG (Retrieval-Augmented Generation) data processing pipeline that:
 
-- 📄 Processes various document types (PDF, DOCX, TXT, MD, HTML)
-- 🧠 Generates embeddings using state-of-the-art models
-- 💾 Stores vectors in multiple databases (ChromaDB, Qdrant, FAISS, PostgreSQL, Cassandra)
-- 🔄 Supports resumable processing for large datasets
-- 📊 Provides comprehensive logging and monitoring
-- 💻 Works efficiently on low-resource systems
+- Processes various document types (PDF, DOCX, TXT, MD, HTML)
+- Generates embeddings using state-of-the-art models
+- Stores vectors in multiple databases (ChromaDB, Qdrant, FAISS, PostgreSQL, Cassandra)
+- Supports resumable processing for large datasets
+- Provides comprehensive logging and monitoring
+- Works efficiently on low-resource systems
 
 ---
 
@@ -616,4 +616,4 @@ MIT License - See LICENSE file for details.
 eless process your_documents/ --databases chroma
 ```
 
-Happy processing! 🚀
+Happy processing!
