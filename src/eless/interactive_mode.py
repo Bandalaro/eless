@@ -15,7 +15,7 @@ def prompt_for_directory() -> Optional[str]:
     Returns:
         Directory path or None if cancelled
     """
-    click.secho("\n📁 Select Directory to Process", fg="blue", bold=True)
+    click.secho("\n Select Directory to Process", fg="blue", bold=True)
     click.secho("=" * 60, fg="blue")
 
     while True:
@@ -26,13 +26,13 @@ def prompt_for_directory() -> Optional[str]:
         dir_path = Path(directory).expanduser().resolve()
 
         if not dir_path.exists():
-            click.secho(f"✗ Directory not found: {dir_path}", fg="red")
+            click.secho(f"[FAIL] Directory not found: {dir_path}", fg="red")
             if not click.confirm("Try again?", default=True):
                 return None
             continue
 
         if not dir_path.is_dir():
-            click.secho(f"✗ Not a directory: {dir_path}", fg="red")
+            click.secho(f"[FAIL] Not a directory: {dir_path}", fg="red")
             if not click.confirm("Try again?", default=True):
                 return None
             continue
@@ -40,7 +40,7 @@ def prompt_for_directory() -> Optional[str]:
         # Count potential files
         file_count = len([f for f in dir_path.rglob("*") if f.is_file()])
 
-        click.secho(f"\n✓ Found directory with {file_count} files", fg="green")
+        click.secho(f"\n[OK] Found directory with {file_count} files", fg="green")
 
         if click.confirm(f"Process '{dir_path}'?", default=True):
             return str(dir_path)
@@ -56,7 +56,7 @@ def prompt_for_database() -> str:
     Returns:
         Database name (chroma, qdrant, faiss, etc.)
     """
-    click.secho("\n💾 Select Vector Database", fg="blue", bold=True)
+    click.secho("\n Select Vector Database", fg="blue", bold=True)
     click.secho("=" * 60, fg="blue")
 
     click.echo("\nAvailable databases:")
@@ -79,7 +79,7 @@ def prompt_for_database() -> str:
     )
 
     selected = database_map[choice]
-    click.secho(f"✓ Selected: {selected}", fg="green")
+    click.secho(f"[OK] Selected: {selected}", fg="green")
 
     return selected
 
@@ -114,9 +114,9 @@ def prompt_for_chunk_size() -> int:
     size = chunk_map[choice]
 
     if size == 0:
-        click.secho("✓ Will auto-detect optimal chunk size", fg="green")
+        click.secho("[OK] Will auto-detect optimal chunk size", fg="green")
     else:
-        click.secho(f"✓ Selected: {size} characters", fg="green")
+        click.secho(f"[OK] Selected: {size} characters", fg="green")
 
     return size
 
@@ -151,9 +151,9 @@ def prompt_for_batch_size() -> int:
     size = batch_map[choice]
 
     if size == 0:
-        click.secho("✓ Will auto-detect optimal batch size", fg="green")
+        click.secho("[OK] Will auto-detect optimal batch size", fg="green")
     else:
-        click.secho(f"✓ Selected: {size}", fg="green")
+        click.secho(f"[OK] Selected: {size}", fg="green")
 
     return size
 
@@ -187,7 +187,7 @@ def run_interactive_process() -> Optional[Dict[str, Any]]:
     # Step 1: Directory selection
     directory = prompt_for_directory()
     if not directory:
-        click.secho("\n⚠️  Processing cancelled", fg="yellow")
+        click.secho("\n[WARNING]  Processing cancelled", fg="yellow")
         return None
 
     # Step 2: Database selection
@@ -225,7 +225,7 @@ def run_interactive_process() -> Optional[Dict[str, Any]]:
     click.secho()
 
     if not click.confirm("Start processing?", default=True):
-        click.secho("\n⚠️  Processing cancelled", fg="yellow")
+        click.secho("\n[WARNING]  Processing cancelled", fg="yellow")
         return None
 
     return {
@@ -267,6 +267,6 @@ def prompt_for_config_template() -> str:
     )
 
     selected = template_map[choice]
-    click.secho(f"✓ Selected: {selected}", fg="green")
+    click.secho(f"[OK] Selected: {selected}", fg="green")
 
     return selected

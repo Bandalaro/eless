@@ -103,7 +103,7 @@ class ConfigWizard:
 
     def _get_storage_setup(self) -> Dict[str, str]:
         """Get storage configuration preferences."""
-        click.echo("\n💾 Storage Configuration:")
+        click.echo("\n Storage Configuration:")
 
         # Suggest default based on system
         home_dir = Path.home()
@@ -151,7 +151,7 @@ class ConfigWizard:
             profile = "standard"
 
         # Allow user to override
-        click.echo(f"\n⚡ Performance Profile:")
+        click.echo(f"\n Performance Profile:")
         click.echo(
             f"   Recommended: {profile} (based on {memory_gb}GB RAM, {cpu_cores} cores)"
         )
@@ -393,7 +393,7 @@ class ConfigWizard:
             with open(output_path, "w") as f:
                 yaml.dump(self.config, f, default_flow_style=False, indent=2)
 
-            click.echo(f"\n💾 Configuration saved to: {output_path}")
+            click.echo(f"\n Configuration saved to: {output_path}")
             click.echo("\nTo use this configuration:")
             click.echo(f"   eless --config {output_path} process your_documents/")
             return True

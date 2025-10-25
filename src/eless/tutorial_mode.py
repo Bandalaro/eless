@@ -54,7 +54,7 @@ def run_tutorial():
     click.echo("  • Work efficiently even on low-resource systems")
     click.echo()
     click.secho(
-        "💡 Think of ELESS as a smart librarian that reads your documents", fg="cyan"
+        " Think of ELESS as a smart librarian that reads your documents", fg="cyan"
     )
     click.secho(
         "   and remembers them in a way that makes finding information easy.", fg="cyan"
@@ -75,7 +75,7 @@ def run_tutorial():
             click.echo()
             run_health_check(verbose=False)
         except Exception as e:
-            click.secho(f"\n⚠️  Health check error: {e}", fg="yellow")
+            click.secho(f"\n[WARNING]  Health check error: {e}", fg="yellow")
 
     wait_for_user()
 
@@ -84,7 +84,7 @@ def run_tutorial():
     click.echo("\nELESS needs to know about your system to work optimally.")
     click.echo("The 'init' command creates a configuration file automatically.")
     click.echo()
-    click.secho("💡 Configuration tells ELESS:", fg="cyan")
+    click.secho(" Configuration tells ELESS:", fg="cyan")
     click.echo("   • How much memory to use")
     click.echo("   • How many files to process at once")
     click.echo("   • Which database to use")
@@ -109,9 +109,9 @@ def run_tutorial():
             with open(config_path, "w") as f:
                 yaml.dump(config, f, default_flow_style=False, indent=2)
 
-            click.secho(f"\n✓ Configuration saved to: {config_path}", fg="green")
+            click.secho(f"\n[OK] Configuration saved to: {config_path}", fg="green")
         except Exception as e:
-            click.secho(f"\n⚠️  Configuration error: {e}", fg="yellow")
+            click.secho(f"\n[WARNING]  Configuration error: {e}", fg="yellow")
 
     wait_for_user()
 
@@ -132,7 +132,7 @@ def run_tutorial():
     click.echo("     Stores vectors in the database")
     click.echo()
     click.secho(
-        "💡 Each stage is resumable - if interrupted, ELESS picks up", fg="cyan"
+        " Each stage is resumable - if interrupted, ELESS picks up", fg="cyan"
     )
     click.secho("   where it left off!", fg="cyan")
 
@@ -150,7 +150,7 @@ def run_tutorial():
             demo_dir = Path.cwd() / "eless_tutorial_demo"
             demo_dir = create_demo_dataset(demo_dir)
 
-            click.secho(f"\n✓ Created demo files in: {demo_dir}", fg="green")
+            click.secho(f"\n[OK] Created demo files in: {demo_dir}", fg="green")
             click.echo("\nDemo files include:")
             click.echo("  • Introduction to ELESS")
             click.echo("  • Getting started guide")
@@ -160,7 +160,7 @@ def run_tutorial():
 
             tutorial_demo_dir = demo_dir
         except Exception as e:
-            click.secho(f"\n⚠️  Demo creation error: {e}", fg="yellow")
+            click.secho(f"\n[WARNING]  Demo creation error: {e}", fg="yellow")
             tutorial_demo_dir = None
     else:
         tutorial_demo_dir = None
@@ -172,7 +172,7 @@ def run_tutorial():
     click.echo("\nNow let's process the demo documents!")
     click.echo()
     click.secho(
-        "💡 The 'go' command is the simplest way to process documents.", fg="cyan"
+        " The 'go' command is the simplest way to process documents.", fg="cyan"
     )
     click.secho("   It automatically configures everything for you.", fg="cyan")
     click.echo()
@@ -184,7 +184,7 @@ def run_tutorial():
             from eless.core.logging_config import setup_logging
             from eless.eless_pipeline import ElessPipeline
 
-            click.echo("\n🚀 Starting processing...\n")
+            click.echo("\n Starting processing...\n")
 
             # Create config
             config = get_default_config()
@@ -199,7 +199,7 @@ def run_tutorial():
             pipeline = ElessPipeline(config)
             pipeline.run_process(str(tutorial_demo_dir))
 
-            click.secho("\n✓ Processing complete!", fg="green", bold=True)
+            click.secho("\n[OK] Processing complete!", fg="green", bold=True)
 
             # Show results
             files = pipeline.state_manager.get_all_files()
@@ -208,7 +208,7 @@ def run_tutorial():
             click.echo(f"\n📊 Processed {len(loaded)} files successfully!")
 
         except Exception as e:
-            click.secho(f"\n⚠️  Processing error: {e}", fg="yellow")
+            click.secho(f"\n[WARNING]  Processing error: {e}", fg="yellow")
     elif not tutorial_demo_dir:
         click.echo("Skipping processing (no demo data available)")
 
@@ -216,14 +216,14 @@ def run_tutorial():
 
     # Step 7: Next Steps
     print_step(7, 7, "Next Steps and Resources")
-    click.echo("\nCongratulations! You've completed the ELESS tutorial! 🎉")
+    click.echo("\nCongratulations! You've completed the ELESS tutorial! !")
     click.echo()
     click.secho("What you learned:", fg="green", bold=True)
-    click.echo("  ✓ What ELESS does and why it's useful")
-    click.echo("  ✓ How to check system health with 'doctor'")
-    click.echo("  ✓ How to configure ELESS with 'init'")
-    click.echo("  ✓ The document processing pipeline")
-    click.echo("  ✓ How to process documents with 'go'")
+    click.echo("  [OK] What ELESS does and why it's useful")
+    click.echo("  [OK] How to check system health with 'doctor'")
+    click.echo("  [OK] How to configure ELESS with 'init'")
+    click.echo("  [OK] The document processing pipeline")
+    click.echo("  [OK] How to process documents with 'go'")
     click.echo()
 
     click.secho("Useful Commands:", fg="blue", bold=True)
@@ -242,7 +242,7 @@ def run_tutorial():
     click.echo("  📝 Examples: examples/")
     click.echo()
 
-    click.secho("💡 Try processing your own documents:", fg="cyan")
+    click.secho(" Try processing your own documents:", fg="cyan")
     click.echo("   eless go /path/to/your/documents")
     click.echo()
 
@@ -254,7 +254,7 @@ def run_quick_tutorial():
     """
     Run a quick 5-minute tutorial focusing on essential commands.
     """
-    print_header("⚡ ELESS Quick Tutorial (5 min)")
+    print_header(" ELESS Quick Tutorial (5 min)")
 
     click.echo("\nThis is a condensed version of the full tutorial.")
     click.echo("You'll learn the essential commands in 5 minutes.")
@@ -280,7 +280,7 @@ def run_quick_tutorial():
     click.echo("   Command: eless go /path/to/documents")
     click.echo("   Purpose: Process all documents in a directory")
     click.echo()
-    click.secho("   💡 That's it! The 'go' command does everything:", fg="cyan")
+    click.secho("    That's it! The 'go' command does everything:", fg="cyan")
     click.echo("      • Auto-configures settings")
     click.echo("      • Processes all files")
     click.echo("      • Shows progress")

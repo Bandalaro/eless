@@ -200,7 +200,7 @@ def run_demo_interactive():
 
     if use_temp:
         demo_dir = create_demo_dataset()
-        click.secho(f"\n✓ Created demo files in: {demo_dir}", fg="green")
+        click.secho(f"\n[OK] Created demo files in: {demo_dir}", fg="green")
         cleanup_after = click.confirm(
             "\nClean up demo files after processing?", default=True
         )
@@ -212,11 +212,11 @@ def run_demo_interactive():
         demo_dir = Path(demo_path)
         demo_dir.mkdir(parents=True, exist_ok=True)
         demo_dir = create_demo_dataset(demo_dir)
-        click.secho(f"\n✓ Created demo files in: {demo_dir}", fg="green")
+        click.secho(f"\n[OK] Created demo files in: {demo_dir}", fg="green")
         cleanup_after = False
 
     # Show what was created
-    click.secho("\n📄 Demo Files:", fg="blue", bold=True)
+    click.secho("\nDemo Files: Demo Files:", fg="blue", bold=True)
     for filename in SAMPLE_DOCUMENTS.keys():
         file_path = demo_dir / filename
         size = file_path.stat().st_size
@@ -226,7 +226,7 @@ def run_demo_interactive():
 
     # Ask if they want to process now
     if click.confirm("Process demo files now?", default=True):
-        click.secho("\n🚀 Processing demo files...\n", fg="yellow")
+        click.secho("\nProcessing demo files...\n", fg="yellow")
 
         # Import and run processing
         try:
@@ -254,7 +254,7 @@ def run_demo_interactive():
             click.echo(f"Processing documents from {demo_dir}...")
             pipeline.run_process(str(demo_dir))
 
-            click.secho("\n✓ Demo processing complete!", fg="green", bold=True)
+            click.secho("\n[OK] Demo processing complete!", fg="green", bold=True)
 
             # Show results
             state_manager = pipeline.state_manager
@@ -271,22 +271,22 @@ def run_demo_interactive():
                 click.secho(f"  Errors: {len(errors)}", fg="red")
 
         except Exception as e:
-            click.secho(f"\n❌ Error during demo: {e}", fg="red")
+            click.secho(f"\n[ERROR] Error during demo: {e}", fg="red")
             logger.error(f"Demo processing error: {e}", exc_info=True)
     else:
-        click.secho(f"\n💡 To process later, run:", fg="cyan")
+        click.secho(f"\n[TIP] To process later, run:", fg="cyan")
         click.secho(f"   eless process {demo_dir}\n")
 
     # Cleanup
     if cleanup_after:
         try:
             shutil.rmtree(demo_dir)
-            click.secho(f"\n✓ Cleaned up demo files", fg="green")
+            click.secho(f"\n[OK] Cleaned up demo files", fg="green")
         except Exception as e:
-            click.secho(f"\n⚠️  Could not clean up {demo_dir}: {e}", fg="yellow")
+            click.secho(f"\n[WARNING] Could not clean up {demo_dir}: {e}", fg="yellow")
 
     click.secho("\n" + "=" * 60, fg="cyan")
-    click.secho("Demo complete! 🎉", fg="cyan", bold=True)
+    click.secho("Demo complete!", fg="cyan", bold=True)
     click.secho("=" * 60 + "\n", fg="cyan")
 
 
@@ -300,7 +300,7 @@ def export_demo_files(output_dir: str):
     output_path = Path(output_dir)
     demo_dir = create_demo_dataset(output_path)
 
-    click.secho(f"\n✓ Exported {len(SAMPLE_DOCUMENTS)} demo files to:", fg="green")
+    click.secho(f"\n[OK] Exported {len(SAMPLE_DOCUMENTS)} demo files to:", fg="green")
     click.secho(f"  {demo_dir}\n", fg="green", bold=True)
 
     click.echo("Files created:")

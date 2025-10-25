@@ -172,15 +172,15 @@ class DatabaseLoader:
                     # 3. Verify connection status
                     if connector.check_connection():
                         self.active_connectors[name] = connector
-                        logger.info(f"✓ Successfully connected to '{name}' ({db_type})")
+                        logger.info(f"[OK] Successfully connected to '{name}' ({db_type})")
                     else:
                         logger.error(
-                            f"✗ Connector '{name}' failed connection check after setup"
+                            f"[FAIL] Connector '{name}' failed connection check after setup"
                         )
 
                 except Exception as e:
                     logger.error(
-                        f"✗ Failed to initialize/connect to DB '{name}' (Type: {db_type}): {e}",
+                        f"[FAIL] Failed to initialize/connect to DB '{name}' (Type: {db_type}): {e}",
                         exc_info=True,
                     )
             else:

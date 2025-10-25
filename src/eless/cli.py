@@ -69,7 +69,7 @@ def cli(ctx, log_level, log_dir, cache_dir, data_dir):
     comprehensive logging, and intelligent resource management.
 
     \b
-    🚀 Quick Start:
+    Quick Start:
       eless tutorial            # Interactive learning guide
       eless quickstart          # Show getting started guide
       eless init                # Run setup wizard
@@ -96,7 +96,7 @@ def cli(ctx, log_level, log_dir, cache_dir, data_dir):
       eless sysinfo             # View system information
 
     \b
-    💡 Get Help:
+    [TIP] Get Help:
       eless <command> --help    # Detailed help for any command
       eless tutorial --quick    # 5-minute quick tutorial
 
@@ -550,12 +550,12 @@ def process(
 
                         connector.upsert_batch(batch_data)
                         click.secho(
-                            f"    ✓ Loaded successfully into {name}", fg="green"
+                            f"    [OK] Loaded successfully into {name}", fg="green"
                         )
                         logger.info(f"Successfully loaded into {name}")
                     except Exception as db_e:
                         click.secho(
-                            f"    ✗ Failed to load into {name}: {db_e}", fg="red"
+                            f"    [FAIL] Failed to load into {name}: {db_e}", fg="red"
                         )
                         logger.error(f"Failed to load into {name}: {db_e}")
                         all_success = False
@@ -798,15 +798,15 @@ def test(ctx, config, test_db):
                     ["This is a test sentence."], convert_to_tensor=False
                 )
                 click.secho(
-                    "   ✓ Embedding model loaded and tested successfully", fg="green"
+                    "   [OK] Embedding model loaded and tested successfully", fg="green"
                 )
                 click.echo(f"   Vector dimension: {len(test_vectors[0])}")
                 logger.info("Embedding model test passed")
             else:
-                click.secho("   ✗ Failed to load embedding model", fg="red")
+                click.secho("   [FAIL] Failed to load embedding model", fg="red")
                 logger.error("Embedding model test failed")
         except Exception as e:
-            click.secho(f"   ✗ Embedding model test failed: {e}", fg="red")
+            click.secho(f"   [FAIL] Embedding model test failed: {e}", fg="red")
             logger.error(f"Embedding model test failed: {e}")
 
         # Test databases
@@ -826,22 +826,22 @@ def test(ctx, config, test_db):
                     try:
                         if connector.check_connection():
                             click.secho(
-                                f"   ✓ {name} connection successful", fg="green"
+                                f"   [OK] {name} connection successful", fg="green"
                             )
                             logger.info(f"{name} connection test passed")
                         else:
-                            click.secho(f"   ✗ {name} connection failed", fg="red")
+                            click.secho(f"   [FAIL] {name} connection failed", fg="red")
                             logger.error(f"{name} connection test failed")
                     except Exception as e:
-                        click.secho(f"   ✗ {name} connection error: {e}", fg="red")
+                        click.secho(f"   [FAIL] {name} connection error: {e}", fg="red")
                         logger.error(f"{name} connection error: {e}")
             else:
-                click.secho("   ✗ No active database connections", fg="red")
+                click.secho("   [FAIL] No active database connections", fg="red")
                 logger.warning("No active database connections")
 
             db_loader.close()
         except Exception as e:
-            click.secho(f"   ✗ Database test failed: {e}", fg="red")
+            click.secho(f"   [FAIL] Database test failed: {e}", fg="red")
             logger.error(f"Database test failed: {e}")
 
         # Test file operations
@@ -856,13 +856,13 @@ def test(ctx, config, test_db):
             test_file.unlink()
 
             if test_content == "test":
-                click.secho("   ✓ File operations working", fg="green")
+                click.secho("   [OK] File operations working", fg="green")
                 logger.info("File operations test passed")
             else:
-                click.secho("   ✗ File operations failed", fg="red")
+                click.secho("   [FAIL] File operations failed", fg="red")
                 logger.error("File operations test failed")
         except Exception as e:
-            click.secho(f"   ✗ File operations test failed: {e}", fg="red")
+            click.secho(f"   [FAIL] File operations test failed: {e}", fg="red")
             logger.error(f"File operations test failed: {e}")
 
         click.echo("\n=== Test Complete ===")
@@ -1139,7 +1139,7 @@ def wizard(ctx, output):
 
         output_path = Path(output)
         if wizard.save_config(output_path):
-            click.echo("\n🎉 Setup complete! You can now start processing documents.")
+            click.echo("\n! Setup complete! You can now start processing documents.")
 
     except Exception as e:
         click.secho(f"Configuration wizard error: {e}", fg="red")
@@ -1203,7 +1203,7 @@ def validate(ctx, config_file):
 
         if missing_sections:
             click.secho(
-                f"❌ Missing required sections: {', '.join(missing_sections)}", fg="red"
+                f"[ERROR] Missing required sections: {', '.join(missing_sections)}", fg="red"
             )
             return
 
@@ -1218,28 +1218,28 @@ def validate(ctx, config_file):
                 path = Path(path_str)
                 try:
                     path.mkdir(parents=True, exist_ok=True)
-                    click.secho(f"✓ Path validated: {path}", fg="green")
+                    click.secho(f"[OK] Path validated: {path}", fg="green")
                 except Exception as e:
-                    click.secho(f"❌ Path error {path}: {e}", fg="red")
+                    click.secho(f"[ERROR] Path error {path}: {e}", fg="red")
 
         # Check numeric ranges
         batch_size = config_dict.get("embedding", {}).get("batch_size", 32)
         if not (1 <= batch_size <= 1000):
             click.secho(
-                f"⚠️  Warning: batch_size {batch_size} may be too large/small",
+                f"[WARNING]  Warning: batch_size {batch_size} may be too large/small",
                 fg="yellow",
             )
 
         cache_size = config_dict.get("cache", {}).get("max_size_mb", 1024)
         if cache_size < 100:
             click.secho(
-                f"⚠️  Warning: cache size {cache_size}MB may be too small", fg="yellow"
+                f"[WARNING]  Warning: cache size {cache_size}MB may be too small", fg="yellow"
             )
 
-        click.secho(f"✅ Configuration file {config_file} is valid!", fg="green")
+        click.secho(f"[OK] Configuration file {config_file} is valid!", fg="green")
 
     except Exception as e:
-        click.secho(f"❌ Configuration validation failed: {e}", fg="red")
+        click.secho(f"[ERROR] Configuration validation failed: {e}", fg="red")
 
 
 @config.command(name="auto-detect")
@@ -1263,7 +1263,7 @@ def auto_detect(ctx, output):
         disk_gb = psutil.disk_usage("/").free / (1024**3)
 
         click.echo(
-            f"🔍 Detected system: {memory_gb:.1f}GB RAM, {cpu_cores} CPU cores, {disk_gb:.1f}GB free disk"
+            f"Detected Detected system: {memory_gb:.1f}GB RAM, {cpu_cores} CPU cores, {disk_gb:.1f}GB free disk"
         )
 
         # Determine optimal preset
@@ -1274,7 +1274,7 @@ def auto_detect(ctx, output):
         else:
             preset = "high-end"
 
-        click.echo(f"💡 Recommended configuration: {preset}")
+        click.echo(f"[TIP] Recommended configuration: {preset}")
 
         # Generate config
         from eless.core.config_wizard import generate_preset_config
@@ -1413,7 +1413,7 @@ def monitor(ctx, config, interval, duration):
 
             # Cache status
             cache_stats = cache_manager.get_cache_stats()
-            click.echo("\n💾 Cache Status:")
+            click.echo("\nDatabase: Cache Status:")
             cache_color = (
                 "red"
                 if cache_stats["utilization_percent"] > 90
@@ -1428,7 +1428,7 @@ def monitor(ctx, config, interval, duration):
             )
 
             # Performance recommendations
-            click.echo("\n💡 Recommendations:")
+            click.echo("\n[TIP] Recommendations:")
             if summary["memory_percent"] > 85:
                 click.secho(
                     "   • Consider reducing batch size or clearing cache", fg="yellow"
@@ -1598,7 +1598,7 @@ def init(preset):
             print_system_info,
         )
 
-        click.secho("\n🚀 ELESS Setup Wizard", fg="blue", bold=True)
+        click.secho("\n ELESS Setup Wizard", fg="blue", bold=True)
         click.secho("=" * 60, fg="blue")
 
         # Show system info
@@ -1630,7 +1630,7 @@ def init(preset):
                 yaml.dump(config, f, default_flow_style=False, indent=2)
 
             click.secho(
-                f"\n✓ Configuration saved to: {config_path}", fg="green", bold=True
+                f"\n[OK] Configuration saved to: {config_path}", fg="green", bold=True
             )
             click.secho("\n📚 Next steps:", fg="blue")
             click.secho("  1. Test your setup: eless doctor")
@@ -1655,7 +1655,7 @@ def quickstart():
         eless quickstart
     """
     click.secho("\n" + "=" * 60, fg="blue", bold=True)
-    click.secho("  🚀 ELESS Quick Start Guide", fg="blue", bold=True)
+    click.secho("   ELESS Quick Start Guide", fg="blue", bold=True)
     click.secho("=" * 60 + "\n", fg="blue", bold=True)
 
     click.secho("Welcome to ELESS! Here's how to get started:\n")
@@ -1677,7 +1677,7 @@ def quickstart():
     click.secho("  This shows the processing status of all files.\n")
 
     click.secho("=" * 60, fg="blue", bold=True)
-    click.secho("\n💡 Tips:", fg="yellow", bold=True)
+    click.secho("\n[TIP] Tips:", fg="yellow", bold=True)
     click.secho("  • Use --help with any command for more details")
     click.secho("  • Check docs at: docs/QUICK_START.md")
     click.secho("  • Run 'eless doctor' if you encounter issues\n")
@@ -1804,7 +1804,7 @@ def template(action, template_name, output):
                 click.echo(f"    {description}")
 
             click.echo("\n" + "=" * 60)
-            click.echo("\n💡 Use 'eless template show <name>' for details")
+            click.echo("\n[TIP] Use 'eless template show <name>' for details")
             click.echo("   Use 'eless template create <name>' to create config\n")
 
         elif action == "show":
@@ -1833,7 +1833,7 @@ def template(action, template_name, output):
                 yaml.dump(config, f, default_flow_style=False, indent=2)
 
             click.secho(
-                f"\n✓ Created configuration from '{template_name}' template:",
+                f"\n[OK] Created configuration from '{template_name}' template:",
                 fg="green",
             )
             click.secho(f"  {output_path}\n", fg="green", bold=True)
@@ -1858,7 +1858,7 @@ def template(action, template_name, output):
 )
 def go(source, database):
     """
-    🚀 Quick process command - just works!
+     Quick process command - just works!
 
     Simplest way to process documents with sensible defaults.
     Automatically configures itself based on your system.
@@ -1882,7 +1882,7 @@ def go(source, database):
         from eless.core.config_loader import ConfigLoader
         from eless.core.default_config import get_default_config
 
-        click.secho("\n🚀 ELESS Quick Process", fg="blue", bold=True)
+        click.secho("\n ELESS Quick Process", fg="blue", bold=True)
         click.secho("=" * 60, fg="blue")
 
         # Load base config
@@ -1899,8 +1899,8 @@ def go(source, database):
         base_config["databases"]["targets"] = [database]
 
         # Show what we're doing
-        click.secho(f"\n📁 Source: {source}", fg="cyan")
-        click.secho(f"💾 Database: {database}", fg="cyan")
+        click.secho(f"\nSource: Source: {source}", fg="cyan")
+        click.secho(f"Database: Database: {database}", fg="cyan")
         click.secho(
             f"⚙️  Batch size: {base_config['embedding']['batch_size']}", fg="cyan"
         )
@@ -1913,7 +1913,7 @@ def go(source, database):
         pipeline.run_process(source)
 
         # Show results
-        click.secho("\n✓ Processing complete!", fg="green", bold=True)
+        click.secho("\n[OK] Processing complete!", fg="green", bold=True)
 
         # Show status
         files = pipeline.state_manager.get_all_files()
@@ -1925,19 +1925,19 @@ def go(source, database):
         if errors:
             click.secho(f"  Errors: {len(errors)} files", fg="yellow")
 
-        click.secho(f"\n💡 Next steps:", fg="cyan")
+        click.secho(f"\n[TIP] Next steps:", fg="cyan")
         click.secho(f"  View status: eless status --all")
         click.secho(f"  Check logs: ls .eless_logs/")
         click.secho()
 
     except KeyboardInterrupt:
-        click.secho("\n\n⚠️  Processing interrupted", fg="yellow")
+        click.secho("\n\n[WARNING]  Processing interrupted", fg="yellow")
         click.secho(
-            "💡 Resume with: eless process {} --resume\n".format(source), fg="cyan"
+            "[TIP] Resume with: eless process {} --resume\n".format(source), fg="cyan"
         )
     except Exception as e:
-        click.secho(f"\n❌ Error: {e}", fg="red")
-        click.secho("💡 Run 'eless doctor' to diagnose issues\n", fg="cyan")
+        click.secho(f"\n[ERROR] Error: {e}", fg="red")
+        click.secho("[TIP] Run 'eless doctor' to diagnose issues\n", fg="cyan")
 
 
 if __name__ == "__main__":

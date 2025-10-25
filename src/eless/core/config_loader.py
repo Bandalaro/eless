@@ -147,6 +147,8 @@ class ConfigLoader:
         if "chunk_size" in chunking:
             if not isinstance(chunking["chunk_size"], int):
                 raise TypeError("chunk_size must be an integer")
+            if chunking["chunk_size"] < 1:
+                raise ValueError("chunk_size must be greater than 0")
             if chunking["chunk_size"] > 10000:
                 raise ValueError("chunk_size must be less than or equal to 10000")
         if "chunk_overlap" in chunking:

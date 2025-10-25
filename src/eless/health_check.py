@@ -15,7 +15,7 @@ def check_python_version() -> Tuple[bool, str]:
     """Check if Python version is compatible."""
     version = sys.version_info
     if version >= (3, 8):
-        return True, f"Python {version.major}.{version.minor}.{version.micro} ✓"
+        return True, f"Python {version.major}.{version.minor}.{version.micro} [OK]"
     return False, f"Python {version.major}.{version.minor} (3.8+ required)"
 
 
@@ -34,7 +34,7 @@ def check_core_dependencies() -> Tuple[bool, str]:
             missing.append(dep)
 
     if not missing:
-        return True, "All core dependencies installed ✓"
+        return True, "All core dependencies installed [OK]"
     return False, f"Missing: {', '.join(missing)}"
 
 
@@ -43,7 +43,7 @@ def check_embedding_model() -> Tuple[bool, str]:
     try:
         from sentence_transformers import SentenceTransformer
 
-        return True, "sentence-transformers available ✓"
+        return True, "sentence-transformers available [OK]"
     except ImportError:
         return False, "Not installed (pip install sentence-transformers)"
 
@@ -56,7 +56,7 @@ def check_database(db_name: str, import_name: str) -> Tuple[bool, str]:
             __import__("langchain_community")
         else:
             __import__(import_name)
-        return True, f"{db_name} installed ✓"
+        return True, f"{db_name} installed [OK]"
     except ImportError:
         install_cmd = {
             "chromadb": "pip install chromadb langchain-community",
@@ -81,7 +81,7 @@ def check_disk_space() -> Tuple[bool, str]:
         free_gb = usage.free / (1024**3)
 
         if free_gb > 5:
-            return True, f"{free_gb:.1f}GB available ✓"
+            return True, f"{free_gb:.1f}GB available [OK]"
         elif free_gb > 1:
             return True, f"{free_gb:.1f}GB available (low)"
         else:
@@ -100,7 +100,7 @@ def check_memory() -> Tuple[bool, str]:
         total_gb = mem.total / (1024**3)
 
         if available_gb > 2:
-            return True, f"{available_gb:.1f}GB / {total_gb:.1f}GB available ✓"
+            return True, f"{available_gb:.1f}GB / {total_gb:.1f}GB available [OK]"
         elif available_gb > 0.5:
             return True, f"{available_gb:.1f}GB / {total_gb:.1f}GB available (low)"
         else:
@@ -126,7 +126,7 @@ def check_configuration() -> Tuple[bool, str]:
             if key not in config:
                 return False, f"Missing '{key}' section in config"
 
-        return True, "Configuration valid ✓"
+        return True, "Configuration valid [OK]"
     except Exception as e:
         return False, f"Could not load config: {str(e)}"
 
@@ -161,7 +161,7 @@ def run_health_check(verbose: bool = False) -> Dict[str, Tuple[bool, str]]:
         max_len = max(len(name) for name in checks.keys())
 
         for name, (ok, message) in checks.items():
-            status = "✓" if ok else "✗"
+            status = "[OK]" if ok else "[FAIL]"
             status_color = "\033[92m" if ok else "\033[91m"  # Green or Red
             reset_color = "\033[0m"
 
@@ -176,20 +176,20 @@ def run_health_check(verbose: bool = False) -> Dict[str, Tuple[bool, str]]:
 
         print("\n" + "=" * 60)
         if all_critical_ok:
-            print("✓ Overall health: Good")
+            print("[OK] Overall health: Good")
             print("  ELESS is ready to use!")
         else:
-            print("✗ Issues found")
+            print("[FAIL] Issues found")
             print("  Please fix critical issues above.")
         print("=" * 60 + "\n")
 
         # Recommendations
         if not checks["Embedding model"][0]:
-            print("💡 To use embeddings: pip install sentence-transformers")
+            print("[TIP] To use embeddings: pip install sentence-transformers")
 
         any_db = any(checks[db][0] for db in ["ChromaDB", "Qdrant", "FAISS"])
         if not any_db:
-            print("💡 No databases installed. Install at least one:")
+            print("[TIP] No databases installed. Install at least one:")
             print("   pip install chromadb  # Recommended for beginners")
 
         print()

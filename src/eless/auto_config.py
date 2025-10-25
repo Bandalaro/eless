@@ -205,7 +205,7 @@ def print_system_info():
     )
     print(f"  CPU: {resources['cpu_count']} cores")
     print(
-        f"  GPU: {'✓ Available' if resources['gpu_available'] else '✗ Not available'}"
+        f"  GPU: {'Available' if resources['gpu_available'] else 'Not available'}"
     )
     print(f"  Disk: {resources['disk_free_gb']:.1f}GB free")
 

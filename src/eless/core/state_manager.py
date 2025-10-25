@@ -122,8 +122,18 @@ class StateManager:
 
         Raises:
             ValueError: If file_path is None for a new file
+            TypeError: If status is not a valid string type
         """
         try:
+            if not isinstance(status, str):
+                raise TypeError(f"Status must be a string, got {type(status).__name__}")
+            
+            valid_statuses = [
+                FileStatus.PENDING, FileStatus.SCANNED, FileStatus.CHUNKED,
+                FileStatus.EMBEDDED, FileStatus.LOADED, FileStatus.ERROR
+            ]
+            if status not in valid_statuses:
+                raise ValueError(f"Invalid status '{status}'. Must be one of {valid_statuses}")
             if file_hash not in self.manifest:
                 # New file - path is required
                 if file_path is None:

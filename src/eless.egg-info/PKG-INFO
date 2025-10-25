@@ -29,6 +29,7 @@ Classifier: Topic :: Text Processing
 Classifier: Topic :: Database
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
+License-File: LICENSE
 Requires-Dist: click>=8.0.0
 Requires-Dist: PyYAML>=6.0
 Requires-Dist: numpy>=1.21.0
@@ -75,6 +76,7 @@ Requires-Dist: flake8>=5.0.0; extra == "dev"
 Requires-Dist: mypy>=0.991; extra == "dev"
 Requires-Dist: pre-commit>=2.20.0; extra == "dev"
 Dynamic: author
+Dynamic: license-file
 Dynamic: requires-python
 
 # ELESS - Evolving Low-resource Embedding and Storage System

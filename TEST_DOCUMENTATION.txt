@@ -1,0 +1,358 @@
+================================================================================
+ELESS TEST DOCUMENTATION
+================================================================================
+
+OVERVIEW
+--------
+Package: ELESS (Evolving Low-resource Embedding and Storage System)
+Test Status: 56 tests passing
+Test Framework: pytest (>= 7.0.0)
+Python Version: 3.8+
+
+================================================================================
+TEST INFRASTRUCTURE
+================================================================================
+
+TEST FRAMEWORK CONFIGURATION
+----------------------------
+- Primary Framework: pytest
+- Test Directory: tests/ (referenced in documentation)
+- Coverage Tool: pytest-cov (optional)
+- Code Style Tools: black, flake8, mypy
+
+INSTALLATION FOR TESTING
+-------------------------
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Install with all features
+pip install -e ".[full]"
+
+================================================================================
+BUILT-IN TEST COMMANDS
+================================================================================
+
+CLI TEST COMMAND
+----------------
+Command: eless test
+Location: src/eless/cli.py (lines 741-850+)
+
+Purpose:
+- Test database connections and system components
+- Validate embedding model functionality
+- Check file operations
+
+Features:
+- Tests embedding model loading
+- Tests database connections (all or specific)
+- Tests file operations
+- Colored output for pass/fail (✓/✗)
+
+Options:
+--config PATH          Specify configuration file
+--test-db DATABASE     Test specific database (chroma, qdrant, faiss, 
+                       postgres, cassandra)
+
+Example Usage:
+-------------
+# Test all system components
+eless test
+
+# Test specific database
+eless test --test-db chroma
+
+# Test with custom config
+eless test --config /path/to/config.yaml
+
+================================================================================
+TEST CATEGORIES
+================================================================================
+
+1. EMBEDDING MODEL TESTS
+-------------------------
+Location: src/eless/cli.py (lines 788-810)
+
+What is Tested:
+- Model loading via ModelLoader
+- Encoding test sentences
+- Vector dimension validation
+- Error handling for missing dependencies
+
+Test Process:
+  1. Load embedding model using ModelLoader
+  2. Test encoding functionality with sample text
+  3. Validate vector dimensions
+  4. Report success/failure with dimension info
+
+2. DATABASE CONNECTION TESTS
+-----------------------------
+Location: src/eless/cli.py (lines 812-845)
+
+Supported Databases:
+- ChromaDB
+- Qdrant (requires running instance on port 6333)
+- FAISS
+- PostgreSQL (requires running instance on port 5432)
+- Cassandra
+
+What is Tested:
+- Database connector initialization
+- Connection establishment
+- Connection validation via check_connection()
+- Error handling for unavailable databases
+
+Test Process:
+  1. Initialize DatabaseLoader with config
+  2. Iterate through active connectors
+  3. Test connection for each database
+  4. Report success/failure for each connector
+
+3. FILE OPERATION TESTS
+-----------------------
+Location: src/eless/cli.py (line 847+)
+
+What is Tested:
+- Cache directory access
+- File I/O operations
+- State management
+
+4. HEALTH CHECK TESTS
+---------------------
+Location: src/eless/health_check.py
+
+Health Check Categories:
+
+A. System Requirements
+  - Python version check (3.8+ required)
+  - Core dependencies validation
+  - Disk space monitoring (5GB+ recommended)
+  - Memory availability (2GB+ recommended)
+
+B. Component Checks
+  - Embedding model availability (sentence-transformers)
+  - Database connector availability:
+    * ChromaDB
+    * Qdrant
+    * FAISS
+    * PostgreSQL (psycopg2)
+    * Cassandra
+
+C. Configuration Validation
+  - Configuration file existence
+  - Required sections: cache, chunking, embedding
+  - Configuration structure integrity
+
+Run Health Check:
+  eless health
+
+Programmatic Usage:
+  from eless.health_check import run_health_check, quick_check
+  
+  # Detailed health check
+  results = run_health_check(verbose=True)
+  
+  # Quick boolean check
+  is_ready = quick_check()
+
+================================================================================
+TEST EXECUTION
+================================================================================
+
+RUNNING TESTS VIA PYTEST
+-------------------------
+# Run all tests
+pytest tests/
+
+# Run specific test suite
+pytest tests/test_cli.py -v
+
+# Run with coverage report
+pytest tests/ --cov=src --cov-report=html
+
+# Run tests for specific module
+pytest tests/ -k "embedding"
+
+RUNNING BUILT-IN TESTS
+-----------------------
+# System-wide test
+eless test
+
+# Test specific database
+eless test --test-db faiss
+
+# Test with debug logging
+eless test --log-level DEBUG
+
+================================================================================
+TEST COMPONENTS OVERVIEW
+================================================================================
+
+CORE MODULE TESTS
+-----------------
+- Config Loader: Configuration parsing and validation
+- State Manager: File state tracking and persistence
+- Cache Manager: Content-based hashing and manifest operations
+- Resource Monitor: System resource monitoring
+- Error Handler: Dependency checking and error recovery
+- Logging: Log rotation and structured logging
+
+PROCESSING MODULE TESTS
+------------------------
+- File Scanner: File discovery and filtering
+- Dispatcher: File routing and processing orchestration
+- Parallel Processor: Multi-threaded processing
+- Streaming Processor: Memory-efficient large file handling
+
+PARSER TESTS
+------------
+- PDF Parser: PDF text extraction
+- HTML Parser: HTML parsing and cleaning
+- Office Parser: DOCX, XLSX parsing
+- Text Chunker: Document chunking strategies
+- Table Parser: Structured data extraction
+
+DATABASE CONNECTOR TESTS
+-------------------------
+- Base Connector: Abstract interface compliance
+- ChromaDB Connector: Collection management and vector operations
+- Qdrant Connector: Collection operations and search
+- FAISS Connector: Index operations and persistence
+- PostgreSQL Connector: Table operations and pgvector
+- Cassandra Connector: Keyspace and table operations
+
+EMBEDDING TESTS
+---------------
+- Model Loader: Model initialization and caching
+- Embedder: Batch encoding and vector generation
+
+================================================================================
+TEST DATA
+================================================================================
+
+DEMO DATA FOR TESTING
+----------------------
+Location: src/eless/demo_data.py
+
+Purpose: Provides sample documents for testing and learning
+
+Available Demo Datasets:
+- Sample text documents
+- Test corpus for embedding
+- Example configurations
+
+Usage:
+  from eless.demo_data import create_demo_dataset
+  demo_data = create_demo_dataset()
+
+================================================================================
+TESTING BEST PRACTICES
+================================================================================
+
+BEFORE RUNNING TESTS
+--------------------
+1. Install all dependencies:
+   pip install -e ".[full,dev]"
+
+2. Ensure databases are running (if testing database features):
+   - Qdrant: Port 6333
+   - PostgreSQL: Port 5432
+
+3. Verify system resources:
+   eless health
+
+TEST COVERAGE AREAS
+-------------------
+Currently Tested:
+✓ Embedding model loading
+✓ Database connections
+✓ File operations
+✓ Configuration validation
+✓ System health checks
+✓ Dependency availability
+
+Test Configuration:
+- Tests expect pytest framework
+- 56 tests reported as passing
+- Test directory referenced in documentation
+
+================================================================================
+CONTINUOUS INTEGRATION
+================================================================================
+
+DEVELOPMENT WORKFLOW
+--------------------
+# Run type checking
+mypy src/
+
+# Run linting
+flake8 src/
+
+# Format code
+black src/
+
+# Run tests
+pytest tests/
+
+================================================================================
+TROUBLESHOOTING TEST FAILURES
+================================================================================
+
+COMMON ISSUES
+-------------
+
+1. Missing Dependencies
+   Solution: pip install -e ".[full]"
+
+2. Database Connection Failures
+   - Verify database services are running
+   - Check port configurations
+   - Review connection parameters in config
+
+3. Embedding Model Issues
+   - Ensure sentence-transformers is installed
+   - Check available disk space for model downloads
+   - Verify internet connection for first-time model download
+
+4. File Permission Errors
+   - Check cache directory permissions
+   - Verify log directory write access
+
+================================================================================
+TEST MAINTENANCE
+================================================================================
+
+ADDING NEW TESTS
+----------------
+1. Create test files in tests/ directory
+2. Follow naming convention: test_*.py
+3. Use pytest fixtures for setup/teardown
+4. Include docstrings for test documentation
+
+TEST NAMING CONVENTION
+----------------------
+def test_feature_name_scenario():
+    """Test description."""
+    # Test implementation
+
+================================================================================
+TEST STATISTICS
+================================================================================
+
+Total Tests: 56
+Status: All Passing ✅
+Framework: pytest >= 7.0.0
+Coverage: Available via pytest-cov
+
+================================================================================
+RELATED DOCUMENTATION
+================================================================================
+
+- Main README: /README.md
+- Configuration Guide: Referenced in config/
+- API Documentation: Referenced in docs/
+- Contributing Guidelines: Referenced in docs/
+
+================================================================================
+Last Updated: Generated from ELESS v1.0.0
+Test Documentation Version: 1.0
+================================================================================
