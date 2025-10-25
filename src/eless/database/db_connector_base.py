@@ -45,7 +45,9 @@ class DBConnectorBase(ABC):
         pass
 
     @abstractmethod
-    def search(self, query_vector: List[float], limit: int = 10) -> List[Dict[str, Any]]:
+    def search(
+        self, query_vector: List[float], limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Searches the database for similar vectors based on the query vector.
 

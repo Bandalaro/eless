@@ -20,7 +20,7 @@ A resilient RAG (Retrieval-Augmented Generation) data processing pipeline with c
 - **CLI Interface**: Easy-to-use command-line tools
 - **Modular Design**: Extensible architecture for custom parsers and databases
 
-**Note**: ELESS gracefully handles missing optional dependencies with warnings. Install extras for full features.
+**Note**: ELESS gracefully handles missing optional dependencies with warnings. Install extras for full features. For Qdrant and PostgreSQL, ensure the database instances are running on the specified ports (default: Qdrant 6333, PostgreSQL 5432).
 
 ## Project Structure
 

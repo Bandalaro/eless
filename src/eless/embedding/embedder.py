@@ -58,9 +58,7 @@ class Embedder:
         if vectors is not None:
             logger.info(f"Resuming {file_hash[:8]}. Loaded vectors from cache.")
             # Update status to EMBEDDED if it was previously CHUNKED or SCANNED
-            self.state_manager.add_or_update_file(
-                file_hash, FileStatus.EMBEDDED
-            )
+            self.state_manager.add_or_update_file(file_hash, FileStatus.EMBEDDED)
             return vectors
         return None
 
@@ -116,9 +114,7 @@ class Embedder:
             # Archive vectors and update state
             self.archiver.save_vectors(file_hash, vectors)
             # Update status (path is preserved automatically)
-            self.state_manager.add_or_update_file(
-                file_hash, FileStatus.EMBEDDED
-            )
+            self.state_manager.add_or_update_file(file_hash, FileStatus.EMBEDDED)
             logger.info(
                 f"File {file_hash[:8]}: Generated and cached {vectors.shape[0]} embeddings"
             )
@@ -270,6 +266,7 @@ class Embedder:
             Chunks with vectors attached
         """
         from collections import defaultdict
+
         file_chunks = defaultdict(list)
 
         try:

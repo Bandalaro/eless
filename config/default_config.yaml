@@ -20,8 +20,8 @@ logging:
 
 # Settings for the low-resource embedding model.
 embedding:
-  model_name: "sentence-transformers/all-MiniLM-L6-v2"
-  dimensions: 384
+  model: "sentence-transformers/all-MiniLM-L6-v2"
+  dimension: 384
   device: "cpu"
   # batch_size for inference to manage memory on low-end PCs.
   batch_size: 32
@@ -72,13 +72,16 @@ databases:
     # PostgreSQL/CockroachDB settings
     postgresql:
       type: postgresql
+      # Option 1: Use individual parameters (will construct DSN automatically)
       host: localhost
       port: 5432
       user: your_user
       password: your_password
       database: your_db
+      # Option 2: Use DSN directly (uncomment to use)
+      # dsn: "postgresql://user:password@localhost:5432/dbname"
       table_name: eless_embeddings
-      connection_timeout: 30
+      vector_column: embedding
 
     # Cassandra settings
     cassandra:

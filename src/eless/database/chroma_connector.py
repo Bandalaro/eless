@@ -14,6 +14,7 @@ logger = logging.getLogger("ELESS.ChromaConnector")
 
 class PassThroughEmbeddingFunction:
     """Custom pass-through embedding function for pre-computed embeddings."""
+
     def __call__(self, input):
         # Return the input as-is since embeddings are pre-computed
         return input
@@ -58,8 +59,7 @@ class ChromaDBConnector(DBConnectorBase):
 
             # Get or create collection
             self.collection = self.client.get_or_create_collection(
-                name=self.collection_name,
-                metadata={"dimension": self.dimension}
+                name=self.collection_name, metadata={"dimension": self.dimension}
             )
 
             logger.info(f"ChromaDB collection '{self.collection_name}' ready.")
@@ -88,11 +88,7 @@ class ChromaDBConnector(DBConnectorBase):
         metadatas = [v["metadata"] for v in vectors]
 
         try:
-            self.collection.upsert(
-                ids=ids,
-                embeddings=embeddings,
-                metadatas=metadatas
-            )
+            self.collection.upsert(ids=ids, embeddings=embeddings, metadatas=metadatas)
             logger.debug(
                 f"Successfully upserted {len(ids)} vectors to ChromaDB collection '{self.collection_name}'."
             )
@@ -101,9 +97,9 @@ class ChromaDBConnector(DBConnectorBase):
             logger.error(f"Failed to upsert batch to ChromaDB. Error: {e}")
             raise
 
-
-
-    def search(self, query_vector: List[float], limit: int = 10) -> List[Dict[str, Any]]:
+    def search(
+        self, query_vector: List[float], limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Searches the Chroma collection for similar vectors.
 
@@ -122,17 +118,27 @@ class ChromaDBConnector(DBConnectorBase):
             results = self.collection.query(
                 query_embeddings=[query_vector],
                 n_results=limit,
-                include=["documents", "metadatas", "distances"]
+                include=["documents", "metadatas", "distances"],
             )
             # Format results
             formatted_results = []
             if results and "documents" in results and results["documents"]:
                 for i in range(len(results["documents"][0])):
-                    formatted_results.append({
-                        "content": results["documents"][0][i],
-                        "metadata": results["metadatas"][0][i] if results["metadatas"] and results["metadatas"][0] else {},
-                        "score": results["distances"][0][i] if results["distances"] and results["distances"][0] else 0.0
-                    })
+                    formatted_results.append(
+                        {
+                            "content": results["documents"][0][i],
+                            "metadata": (
+                                results["metadatas"][0][i]
+                                if results["metadatas"] and results["metadatas"][0]
+                                else {}
+                            ),
+                            "score": (
+                                results["distances"][0][i]
+                                if results["distances"] and results["distances"][0]
+                                else 0.0
+                            ),
+                        }
+                    )
             return formatted_results
         except Exception as e:
             logger.error(f"Chroma search failed: {e}")

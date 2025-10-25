@@ -1,0 +1,2 @@
+[console_scripts]
+eless = eless.cli:cli

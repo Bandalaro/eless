@@ -1,0 +1,60 @@
+# Include essential files
+include LICENSE
+include README.md
+include CHANGELOG.md
+include CONTRIBUTING.md
+include requirements.txt
+include pyproject.toml
+include setup.py
+
+# Include improvement documentation
+include IMPROVEMENTS_BEFORE_PYPI.md
+include TEST_AND_DEBUG_SUMMARY.md
+include STORAGE_CONFIG.md
+include USER_CONFIGURABILITY_ANALYSIS.md
+include IMPROVEMENTS_SUMMARY.md
+
+# Include configuration files
+recursive-include config *.yaml *.yml *.json
+
+# Include all package source code
+recursive-include src/eless *.py *.yaml *.yml *.json *.txt
+
+# Include documentation (optional - comment out to reduce package size)
+# recursive-include docs *.md
+
+# Exclude development and test files
+prune tests
+prune scripts
+prune .git
+prune .github
+prune .vscode
+prune .idea
+prune venv
+prune test_env
+prune verify_env
+prune build
+prune dist
+prune *.egg-info
+prune __pycache__
+prune .pytest_cache
+prune .eless_cache
+prune .eless_logs
+prune eless_cache
+prune models
+
+# Exclude compiled and temporary files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.so
+global-exclude *~
+global-exclude .git*
+global-exclude .*.sw*
+global-exclude *.log
+global-exclude *.bak
+global-exclude *.tmp
+global-exclude .coverage
+global-exclude htmlcov

@@ -10,7 +10,7 @@ def get_minimal_template() -> Dict[str, Any]:
     """
     Minimal configuration for low-resource systems.
     Suitable for systems with 1-2GB RAM.
-    
+
     Returns:
         Configuration dictionary
     """
@@ -64,7 +64,7 @@ def get_balanced_template() -> Dict[str, Any]:
     """
     Balanced configuration for typical systems.
     Suitable for systems with 4-8GB RAM.
-    
+
     Returns:
         Configuration dictionary
     """
@@ -118,7 +118,7 @@ def get_high_performance_template() -> Dict[str, Any]:
     """
     High-performance configuration for powerful systems.
     Suitable for systems with 16GB+ RAM and GPU.
-    
+
     Returns:
         Configuration dictionary
     """
@@ -172,7 +172,7 @@ def get_low_memory_template() -> Dict[str, Any]:
     """
     Low-memory configuration for constrained systems.
     Suitable for systems with <2GB RAM or embedded devices.
-    
+
     Returns:
         Configuration dictionary
     """
@@ -226,7 +226,7 @@ def get_docker_template() -> Dict[str, Any]:
     """
     Docker-optimized configuration.
     Suitable for containerized deployments with predictable resources.
-    
+
     Returns:
         Configuration dictionary
     """
@@ -284,13 +284,13 @@ def get_docker_template() -> Dict[str, Any]:
 def get_template(template_name: str) -> Dict[str, Any]:
     """
     Get a configuration template by name.
-    
+
     Args:
         template_name: Name of the template
-        
+
     Returns:
         Configuration dictionary
-        
+
     Raises:
         ValueError: If template name is not recognized
     """
@@ -301,20 +301,20 @@ def get_template(template_name: str) -> Dict[str, Any]:
         "low-memory": get_low_memory_template,
         "docker": get_docker_template,
     }
-    
+
     if template_name not in templates:
         raise ValueError(
             f"Unknown template: {template_name}. "
             f"Available templates: {', '.join(templates.keys())}"
         )
-    
+
     return templates[template_name]()
 
 
 def list_templates() -> Dict[str, str]:
     """
     List all available templates with descriptions.
-    
+
     Returns:
         Dictionary mapping template names to descriptions
     """
@@ -330,21 +330,23 @@ def list_templates() -> Dict[str, str]:
 def print_template_info(template_name: str):
     """
     Print detailed information about a template.
-    
+
     Args:
         template_name: Name of the template
     """
     try:
         config = get_template(template_name)
         templates_info = list_templates()
-        
+
         print(f"\n📝 Template: {template_name}")
         print(f"Description: {templates_info[template_name]}")
         print("\nKey Settings:")
         print(f"  Embedding batch size: {config['embedding']['batch_size']}")
         print(f"  Chunk size: {config['chunking']['chunk_size']}")
         print(f"  Max memory: {config['resource_limits']['max_memory_mb']}MB")
-        print(f"  Parallel processing: {config['parallel_processing']['enable_parallel_files']}")
+        print(
+            f"  Parallel processing: {config['parallel_processing']['enable_parallel_files']}"
+        )
         print(f"  Default database: {config['databases']['targets'][0]}")
         print()
     except ValueError as e:

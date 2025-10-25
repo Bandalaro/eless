@@ -25,6 +25,9 @@ class QdrantConnector(DBConnectorBase):
 
     def connect(self):
         try:
+            # Check if Qdrant instance is running
+            self._check_qdrant_running()
+
             # Initialize Qdrant client
             if self.path:
                 self.client = QdrantClient(path=self.path)
@@ -50,6 +53,25 @@ class QdrantConnector(DBConnectorBase):
             logger.error(f"Failed to connect or set up Qdrant: {e}")
             raise
 
+    def _check_qdrant_running(self):
+        """Check if Qdrant instance is running."""
+        import socket
+
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(5)
+            result = sock.connect_ex((self.host, self.port))
+            sock.close()
+            if result != 0:
+                raise ConnectionError(
+                    f"Qdrant instance not running at http://{self.host}:{self.port}. "
+                    "Start the Qdrant server (e.g., 'docker run -p 6333:6333 qdrant/qdrant') "
+                    "and ensure the URL is accessible."
+                )
+            logger.info(f"Qdrant instance confirmed running on {self.host}:{self.port}")
+        except Exception as e:
+            raise ConnectionError(f"Failed to check Qdrant status: {e}")
+
     def upsert_batch(self, vectors: List[Dict[str, Any]]):
         if not self.client:
             raise ConnectionError("Qdrant client not initialized.")
@@ -62,9 +84,7 @@ class QdrantConnector(DBConnectorBase):
             point_id = str(uuid.uuid4())
             payload = {**v["metadata"], "file_id": v["id"]}
             points.append(
-                models.PointStruct(
-                    id=point_id, vector=v["vector"], payload=payload
-                )
+                models.PointStruct(id=point_id, vector=v["vector"], payload=payload)
             )
 
         try:
@@ -83,7 +103,9 @@ class QdrantConnector(DBConnectorBase):
         self.client = None
         logger.debug("Qdrant connector closed.")
 
-    def search(self, query_vector: List[float], limit: int = 10) -> List[Dict[str, Any]]:
+    def search(
+        self, query_vector: List[float], limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Searches the Qdrant collection for similar vectors.
 
@@ -101,15 +123,19 @@ class QdrantConnector(DBConnectorBase):
             search_result = self.client.search(
                 collection_name=self.collection_name,
                 query_vector=query_vector,
-                limit=limit
+                limit=limit,
             )
             results = []
             for hit in search_result:
-                results.append({
-                    "content": hit.payload.get("content", ""),
-                    "metadata": hit.payload,
-                    "score": hit.score
-                })
+                results.append(
+                    {
+                        "content": (
+                            hit.payload.get("content", "") if hit.payload else ""
+                        ),
+                        "metadata": hit.payload if hit.payload else {},
+                        "score": hit.score,
+                    }
+                )
             return results
         except Exception as e:
             logger.error(f"Qdrant search failed: {e}")

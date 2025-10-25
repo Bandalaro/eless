@@ -84,7 +84,9 @@ class FaissConnector(DBConnectorBase):
         self.index = None
         self.data_store = {}
 
-    def search(self, query_vector: List[float], limit: int = 10) -> List[Dict[str, Any]]:
+    def search(
+        self, query_vector: List[float], limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Searches the Faiss index for similar vectors.
 
@@ -107,11 +109,13 @@ class FaissConnector(DBConnectorBase):
                     original_id = self.id_map.get(idx)
                     if original_id:
                         metadata = self.data_store.get(original_id, {})
-                        results.append({
-                            "content": metadata.get("content", ""),
-                            "metadata": metadata,
-                            "score": float(distances[0][i])
-                        })
+                        results.append(
+                            {
+                                "content": metadata.get("content", ""),
+                                "metadata": metadata,
+                                "score": float(distances[0][i]),
+                            }
+                        )
             return results
         except Exception as e:
             logger.error(f"Faiss search failed: {e}")

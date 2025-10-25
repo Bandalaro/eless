@@ -146,14 +146,22 @@ class Dispatcher:
 
         # Check file size against limits
         file_size_mb = os.path.getsize(file_path) / (1024 * 1024)
-        max_file_size_mb = self.config.get("resource_limits", {}).get("max_file_size_mb", 100)
+        max_file_size_mb = self.config.get("resource_limits", {}).get(
+            "max_file_size_mb", 100
+        )
         if file_size_mb > max_file_size_mb:
-            logger.warning(f"File {file_path} size {file_size_mb:.2f}MB exceeds limit of {max_file_size_mb}MB, processing anyway")
+            logger.warning(
+                f"File {file_path} size {file_size_mb:.2f}MB exceeds limit of {max_file_size_mb}MB, processing anyway"
+            )
 
         if file_hash == "ERROR":
             # File that failed scanning
             logger.error(f"Failed to scan file {file_path.name}")
-            self.state_manager.add_or_update_file("ERROR", FileStatus.ERROR, file_path=str(file_path), metadata={"error": "Failed to scan file"}
+            self.state_manager.add_or_update_file(
+                "ERROR",
+                FileStatus.ERROR,
+                file_path=str(file_path),
+                metadata={"error": "Failed to scan file"},
             )
             return
 
@@ -176,7 +184,9 @@ class Dispatcher:
 
         if raw_text_chunks is None:
             # RUN PATH: Extract text and chunk it
-            self.state_manager.add_or_update_file(file_hash, FileStatus.SCANNED, file_path=str(file_path))
+            self.state_manager.add_or_update_file(
+                file_hash, FileStatus.SCANNED, file_path=str(file_path)
+            )
             logger.info(f"Processing new file: {file_path.name}...")
 
             # Check if we should use streaming processing
@@ -197,8 +207,14 @@ class Dispatcher:
                         )
                     )
                 except Exception as e:
-                    logger.error(f"Error during streaming processing of {file_path.name}: {e}")
-                    self.state_manager.add_or_update_file(file_hash, FileStatus.ERROR, file_path=str(file_path), metadata={"error": str(e)},
+                    logger.error(
+                        f"Error during streaming processing of {file_path.name}: {e}"
+                    )
+                    self.state_manager.add_or_update_file(
+                        file_hash,
+                        FileStatus.ERROR,
+                        file_path=str(file_path),
+                        metadata={"error": str(e)},
                     )
                     return
 
@@ -208,7 +224,11 @@ class Dispatcher:
                     raw_text = self._get_raw_text(file_path, extension)
                     if not raw_text:
                         logger.error(f"Failed to extract text from {file_path.name}")
-                        self.state_manager.add_or_update_file(file_hash, FileStatus.ERROR, file_path=str(file_path), metadata={"error": "Failed to extract text."},
+                        self.state_manager.add_or_update_file(
+                            file_hash,
+                            FileStatus.ERROR,
+                            file_path=str(file_path),
+                            metadata={"error": "Failed to extract text."},
                         )
                         return
 
@@ -222,17 +242,29 @@ class Dispatcher:
                     )
                 except Exception as e:
                     logger.error(f"Error during processing of {file_path.name}: {e}")
-                    self.state_manager.add_or_update_file(file_hash, FileStatus.ERROR, file_path=str(file_path), metadata={"error": str(e)},
+                    self.state_manager.add_or_update_file(
+                        file_hash,
+                        FileStatus.ERROR,
+                        file_path=str(file_path),
+                        metadata={"error": str(e)},
                     )
                     return
 
             if not raw_text_chunks:
-                self.state_manager.add_or_update_file(file_hash, FileStatus.ERROR, file_path=str(file_path), metadata={"error": "No chunks created."},
+                self.state_manager.add_or_update_file(
+                    file_hash,
+                    FileStatus.ERROR,
+                    file_path=str(file_path),
+                    metadata={"error": "No chunks created."},
                 )
                 return
 
             if not raw_text_chunks:
-                self.state_manager.add_or_update_file(file_hash, FileStatus.ERROR, file_path=str(file_path), metadata={"error": "No chunks created."},
+                self.state_manager.add_or_update_file(
+                    file_hash,
+                    FileStatus.ERROR,
+                    file_path=str(file_path),
+                    metadata={"error": "No chunks created."},
                 )
                 return
 
@@ -242,7 +274,11 @@ class Dispatcher:
                     raw_text = self._get_raw_text(file_path, extension)
                     if not raw_text:
                         logger.error(f"Failed to extract text from {file_path.name}")
-                        self.state_manager.add_or_update_file(file_hash, FileStatus.ERROR, file_path=str(file_path), metadata={"error": "Failed to extract text."},
+                        self.state_manager.add_or_update_file(
+                            file_hash,
+                            FileStatus.ERROR,
+                            file_path=str(file_path),
+                            metadata={"error": "Failed to extract text."},
                         )
                         return
 
@@ -256,18 +292,28 @@ class Dispatcher:
                     )
                 except Exception as e:
                     logger.error(f"Error during processing of {file_path.name}: {e}")
-                    self.state_manager.add_or_update_file(file_hash, FileStatus.ERROR, file_path=str(file_path), metadata={"error": str(e)},
+                    self.state_manager.add_or_update_file(
+                        file_hash,
+                        FileStatus.ERROR,
+                        file_path=str(file_path),
+                        metadata={"error": str(e)},
                     )
                     return
 
             if not raw_text_chunks:
-                self.state_manager.add_or_update_file(file_hash, FileStatus.ERROR, file_path=str(file_path), metadata={"error": "No chunks created."},
+                self.state_manager.add_or_update_file(
+                    file_hash,
+                    FileStatus.ERROR,
+                    file_path=str(file_path),
+                    metadata={"error": "No chunks created."},
                 )
                 return
 
             # Save chunks and update status
             self.archiver.save_chunks(file_hash, raw_text_chunks)
-            self.state_manager.add_or_update_file(file_hash, FileStatus.CHUNKED, file_path=str(file_path))
+            self.state_manager.add_or_update_file(
+                file_hash, FileStatus.CHUNKED, file_path=str(file_path)
+            )
             logger.info(
                 f"File {file_hash[:8]} chunked ({len(raw_text_chunks)} chunks) and saved to cache."
             )

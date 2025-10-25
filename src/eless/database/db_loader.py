@@ -131,7 +131,9 @@ class DatabaseLoader:
         # Filter to only available types
         available_targets = [name for name in target_names if name in CONNECTOR_MAP]
         if set(target_names) != set(available_targets):
-            logger.warning(f"Some targets not available: {set(target_names) - set(available_targets)}. Using: {available_targets}")
+            logger.warning(
+                f"Some targets not available: {set(target_names) - set(available_targets)}. Using: {available_targets}"
+            )
         target_names = available_targets
         logger.info(f"Target databases from config: {target_names}")
 

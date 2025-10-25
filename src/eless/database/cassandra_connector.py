@@ -27,8 +27,32 @@ class CassandraConnector(DBConnectorBase):
         self.username = self.db_config.get("username")
         self.password = self.db_config.get("password")
 
+    def _check_cassandra_running(self):
+        """Check if Cassandra instance is running."""
+        import socket
+
+        try:
+            # Try to connect to the first contact point
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(5)
+            result = sock.connect_ex((self.contact_points[0], self.port))
+            sock.close()
+            if result != 0:
+                raise ConnectionError(
+                    f"Cassandra instance not running at cassandra://{self.contact_points[0]}:{self.port}. "
+                    "Start the Cassandra server and ensure the port is accessible."
+                )
+            logger.info(
+                f"Cassandra instance confirmed running on {self.contact_points[0]}:{self.port}"
+            )
+        except Exception as e:
+            raise ConnectionError(f"Failed to check Cassandra status: {e}")
+
     def connect(self):
         try:
+            # Check if Cassandra instance is running
+            self._check_cassandra_running()
+
             auth_provider = None
             if self.username and self.password:
                 auth_provider = PlainTextAuthProvider(self.username, self.password)
@@ -42,7 +66,8 @@ class CassandraConnector(DBConnectorBase):
 
             # 1. Create keyspace (if not exists)
             self.session.execute(
-                f"CREATE KEYSPACE IF NOT EXISTS {self.keyspace} WITH replication = {{'class': 'SimpleStrategy', 'replication_factor': '1'}}"
+                f"CREATE KEYSPACE IF NOT EXISTS {self.keyspace} WITH replication = "
+                "{{'class': 'SimpleStrategy', 'replication_factor': '1'}}"
             )
             self.session.set_keyspace(self.keyspace)
 
@@ -58,7 +83,8 @@ class CassandraConnector(DBConnectorBase):
             self.session.execute(create_table_cql)
 
             logger.info(
-                f"Cassandra connection successful. Keyspace '{self.keyspace}' and table '{self.table_name}' ready."
+                f"Cassandra connection successful. Keyspace '{self.keyspace}' and table "
+                f"'{self.table_name}' ready."
             )
 
         except Exception as e:
@@ -75,7 +101,7 @@ class CassandraConnector(DBConnectorBase):
 
         # CQL for upsert
         upsert_cql = f"""
-        INSERT INTO {self.table_name} (id, vector, metadata_json) 
+        INSERT INTO {self.table_name} (id, vector, metadata_json)
         VALUES (%s, %s, %s)
         """
 

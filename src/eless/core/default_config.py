@@ -31,7 +31,7 @@ DEFAULT_CONFIG = {
         "cache_embeddings": True,
         "model_path": None,
         "use_gpu": False,
-        "quantize": False
+        "quantize": False,
     },
     "resource_limits": {
         "memory_warning_percent": 80,
@@ -54,7 +54,7 @@ DEFAULT_CONFIG = {
         "skip_short_chunks": True,
         "overlap_strategy": "simple",
         "text_splitter": "sentence",
-        "language": "en"
+        "language": "en",
     },
     "parallel_processing": {
         "max_workers": None,
@@ -78,10 +78,7 @@ DEFAULT_CONFIG = {
         "default": {"drop_existing": False},
         "targets": [],  # Empty by default; users should add based on installed dependencies
         "connections": {
-            "chroma": {
-                "type": "chroma",
-                "path": ".eless_chroma"
-            },
+            "chroma": {"type": "chroma", "path": ".eless_chroma"},
             "faiss": {
                 "type": "faiss",
                 "index_path": ".eless_faiss/index.faiss",
@@ -120,7 +117,7 @@ DEFAULT_CONFIG = {
 
 def get_default_config() -> Dict[str, Any]:
     """Get default configuration values for ELESS pipeline.
-    
+
     Returns:
         Dict[str, Any]: Default configuration dictionary
     """

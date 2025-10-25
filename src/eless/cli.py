@@ -64,10 +64,10 @@ AVAILABLE_DATABASES = ["chroma", "qdrant", "faiss", "postgresql", "cassandra"]
 def cli(ctx, log_level, log_dir, cache_dir, data_dir):
     """
     ELESS - Evolving Low-resource Embedding and Storage System
-    
+
     A resilient RAG data processing pipeline with multi-database support,
     comprehensive logging, and intelligent resource management.
-    
+
     \b
     🚀 Quick Start:
       eless tutorial            # Interactive learning guide
@@ -75,31 +75,31 @@ def cli(ctx, log_level, log_dir, cache_dir, data_dir):
       eless init                # Run setup wizard
       eless doctor              # Check system health
       eless go docs/            # Simplest way to process documents
-    
+
     \b
     📚 Processing Commands:
       eless process <path>      # Process documents (full options)
       eless process -i          # Interactive mode with prompts
       eless go <path>           # Quick process with auto-config
       eless demo                # Try with sample documents
-    
+
     \b
     ⚙️  Configuration:
       eless template list       # List configuration templates
       eless template create     # Create config from template
       eless init                # Auto-detect and configure
-    
+
     \b
     📊 Monitoring:
       eless status --all        # Check processing status
       eless monitor             # Real-time system monitoring
       eless sysinfo             # View system information
-    
+
     \b
     💡 Get Help:
       eless <command> --help    # Detailed help for any command
       eless tutorial --quick    # 5-minute quick tutorial
-    
+
     For more information, visit: https://github.com/Bandalaro/eless
     """
     # Ensure context object exists
@@ -114,7 +114,9 @@ def cli(ctx, log_level, log_dir, cache_dir, data_dir):
 
 @cli.command()
 @click.argument("source", type=click.Path(exists=True), required=False)
-@click.option("--dry-run", is_flag=True, help="Perform a dry run without actual processing")
+@click.option(
+    "--dry-run", is_flag=True, help="Perform a dry run without actual processing"
+)
 @click.option("--batch", is_flag=True, help="Enable batch processing mode")
 @click.option("--verbose", "-v", is_flag=True, help="Enable verbose output")
 @click.option(
@@ -160,7 +162,10 @@ def cli(ctx, log_level, log_dir, cache_dir, data_dir):
     "--disable-parallel-db", is_flag=True, help="Disable parallel database operations"
 )
 @click.option(
-    "--interactive", "-i", is_flag=True, help="Run in interactive mode with guided prompts"
+    "--interactive",
+    "-i",
+    is_flag=True,
+    help="Run in interactive mode with guided prompts",
 )
 @click.pass_context
 def process(
@@ -199,11 +204,11 @@ def process(
     # Handle interactive mode
     if interactive or source is None:
         from eless.interactive_mode import run_interactive_process
-        
+
         options = run_interactive_process()
         if options is None:
             return
-        
+
         # Apply interactive options
         source = options["source"]
         if options.get("database"):
@@ -214,12 +219,12 @@ def process(
             batch_size = options["batch_size"]
         if options.get("resume") is not None:
             resume = options["resume"]
-    
+
     if not source:
         click.secho("Error: SOURCE is required", fg="red")
         click.echo("Run with --interactive for guided setup")
         return
-    
+
     # Load and merge configuration
     try:
         # Use provided config file or fall back to embedded defaults
@@ -433,7 +438,9 @@ def process(
                     )
 
                     chunks = dispatcher.parse_and_chunk(Path(file_path), file_meta)
-                    state_manager.add_or_update_file(file_id, "CHUNKED", file_path=file_path)
+                    state_manager.add_or_update_file(
+                        file_id, "CHUNKED", file_path=file_path
+                    )
                 elif status == "EMBEDDED" and resume:
                     click.secho(
                         "Status is EMBEDDED. Resuming from Vector Loading step.",
@@ -555,7 +562,9 @@ def process(
 
                 # Final Checkpoint
                 if all_success:
-                    state_manager.add_or_update_file(file_id, "LOADED", file_path=file_path)
+                    state_manager.add_or_update_file(
+                        file_id, "LOADED", file_path=file_path
+                    )
                     click.secho(
                         f"File {os.path.basename(file_path)} successfully LOADED.",
                         fg="green",
@@ -1543,15 +1552,16 @@ def resume(ctx, config):
 def doctor():
     """
     Run system health check and diagnose issues.
-    
+
     Checks Python version, dependencies, available databases,
     system resources, and configuration validity.
-    
+
     Example:
         eless doctor
     """
     try:
         from eless.health_check import run_health_check
+
         run_health_check(verbose=True)
     except Exception as e:
         click.secho(f"Error running health check: {e}", fg="red")
@@ -1567,15 +1577,15 @@ def doctor():
 def init(preset):
     """
     Interactive setup wizard for first-time configuration.
-    
+
     Detects system resources and creates an optimal configuration
     file based on your hardware.
-    
+
     Presets:
       minimal     - Low resource usage (256MB RAM, batch 8)
       balanced    - Auto-detected optimal settings (default)
       performance - Maximum performance (requires good hardware)
-    
+
     Example:
         eless init
         eless init --preset minimal
@@ -1587,13 +1597,13 @@ def init(preset):
             get_preset_config,
             print_system_info,
         )
-        
+
         click.secho("\n🚀 ELESS Setup Wizard", fg="blue", bold=True)
         click.secho("=" * 60, fg="blue")
-        
+
         # Show system info
         print_system_info()
-        
+
         # Get config based on preset
         if preset == "balanced":
             click.secho("Generating auto-detected configuration...\n", fg="yellow")
@@ -1601,7 +1611,7 @@ def init(preset):
         else:
             click.secho(f"Using '{preset}' preset configuration...\n", fg="yellow")
             config = get_preset_config(preset)
-        
+
         # Show what will be configured
         click.secho("📝 Configuration Preview:", fg="green", bold=True)
         click.secho(f"  Batch size: {config['embedding']['batch_size']}")
@@ -1609,24 +1619,26 @@ def init(preset):
         click.secho(f"  Memory limit: {config['resource_limits']['max_memory_mb']}MB")
         click.secho(f"  Workers: {config['parallel']['max_workers']}")
         click.secho()
-        
+
         if click.confirm("Save this configuration?", default=True):
             # Save to user's home directory
             config_dir = Path.home() / ".eless"
             config_dir.mkdir(exist_ok=True)
             config_path = config_dir / "config.yaml"
-            
+
             with open(config_path, "w") as f:
                 yaml.dump(config, f, default_flow_style=False, indent=2)
-            
-            click.secho(f"\n✓ Configuration saved to: {config_path}", fg="green", bold=True)
+
+            click.secho(
+                f"\n✓ Configuration saved to: {config_path}", fg="green", bold=True
+            )
             click.secho("\n📚 Next steps:", fg="blue")
             click.secho("  1. Test your setup: eless doctor")
             click.secho("  2. Process documents: eless process /path/to/documents")
             click.secho("  3. Check status: eless status\n")
         else:
             click.secho("Setup cancelled.", fg="yellow")
-    
+
     except Exception as e:
         click.secho(f"Error during setup: {e}", fg="red")
 
@@ -1635,45 +1647,46 @@ def init(preset):
 def quickstart():
     """
     Quick start guide for new users.
-    
+
     Shows a step-by-step guide to get started with ELESS,
     including installation verification, setup, and first run.
-    
+
     Example:
         eless quickstart
     """
-    click.secho("\n" + "="*60, fg="blue", bold=True)
+    click.secho("\n" + "=" * 60, fg="blue", bold=True)
     click.secho("  🚀 ELESS Quick Start Guide", fg="blue", bold=True)
-    click.secho("="*60 + "\n", fg="blue", bold=True)
-    
+    click.secho("=" * 60 + "\n", fg="blue", bold=True)
+
     click.secho("Welcome to ELESS! Here's how to get started:\n")
-    
+
     click.secho("Step 1: Check System Health", fg="green", bold=True)
     click.secho("  Run: eless doctor")
     click.secho("  This checks if all dependencies are installed.\n")
-    
+
     click.secho("Step 2: Configure ELESS", fg="green", bold=True)
     click.secho("  Run: eless init")
     click.secho("  This creates an optimal configuration for your system.\n")
-    
+
     click.secho("Step 3: Process Documents", fg="green", bold=True)
     click.secho("  Run: eless process /path/to/your/documents")
     click.secho("  This processes your documents and creates embeddings.\n")
-    
+
     click.secho("Step 4: Check Status", fg="green", bold=True)
     click.secho("  Run: eless status --all")
     click.secho("  This shows the processing status of all files.\n")
-    
-    click.secho("="*60, fg="blue", bold=True)
+
+    click.secho("=" * 60, fg="blue", bold=True)
     click.secho("\n💡 Tips:", fg="yellow", bold=True)
     click.secho("  • Use --help with any command for more details")
     click.secho("  • Check docs at: docs/QUICK_START.md")
     click.secho("  • Run 'eless doctor' if you encounter issues\n")
-    
+
     if click.confirm("Would you like to run the health check now?", default=True):
         click.echo()
         try:
             from eless.health_check import run_health_check
+
             run_health_check(verbose=True)
         except Exception as e:
             click.secho(f"Error: {e}", fg="red")
@@ -1683,15 +1696,16 @@ def quickstart():
 def sysinfo():
     """
     Display system information and recommended settings.
-    
+
     Shows detailed information about your system resources
     and the recommended ELESS configuration for optimal performance.
-    
+
     Example:
         eless sysinfo
     """
     try:
         from eless.auto_config import print_system_info
+
         print_system_info()
     except Exception as e:
         click.secho(f"Error getting system info: {e}", fg="red")
@@ -1699,24 +1713,22 @@ def sysinfo():
 
 @cli.command()
 @click.option(
-    "--export",
-    type=click.Path(),
-    help="Export demo files to specified directory"
+    "--export", type=click.Path(), help="Export demo files to specified directory"
 )
 def demo(export):
     """
     Run demo mode with sample documents.
-    
+
     Creates sample documents and optionally processes them
     to demonstrate ELESS capabilities.
-    
+
     Examples:
         eless demo                    # Interactive demo
         eless demo --export ./samples # Export demo files only
     """
     try:
         from eless.demo_data import run_demo_interactive, export_demo_files
-        
+
         if export:
             export_demo_files(export)
         else:
@@ -1726,23 +1738,21 @@ def demo(export):
 
 
 @cli.command()
-@click.option(
-    "--quick", is_flag=True, help="Run quick 5-minute tutorial"
-)
+@click.option("--quick", is_flag=True, help="Run quick 5-minute tutorial")
 def tutorial(quick):
     """
     Run interactive tutorial to learn ELESS.
-    
+
     Step-by-step guide that teaches you how to use ELESS
     effectively with hands-on examples.
-    
+
     Examples:
         eless tutorial         # Full tutorial (~15 min)
         eless tutorial --quick # Quick tutorial (~5 min)
     """
     try:
         from eless.tutorial_mode import run_tutorial, run_quick_tutorial
-        
+
         if quick:
             run_quick_tutorial()
         else:
@@ -1755,21 +1765,22 @@ def tutorial(quick):
 @click.argument("action", type=click.Choice(["list", "show", "create"]))
 @click.argument("template_name", required=False)
 @click.option(
-    "--output", "-o",
+    "--output",
+    "-o",
     type=click.Path(),
-    help="Output path for created configuration file"
+    help="Output path for created configuration file",
 )
 def template(action, template_name, output):
     """
     Manage configuration templates.
-    
+
     Templates provide pre-configured settings for common scenarios:
     - minimal: Low resource usage (256MB RAM)
     - balanced: Auto-detected optimal settings
     - high-performance: Maximum performance (16GB+ RAM, GPU)
     - low-memory: Optimized for <2GB RAM
     - docker: Container-optimized
-    
+
     Examples:
         eless template list                    # List all templates
         eless template show minimal            # Show template details
@@ -1779,55 +1790,58 @@ def template(action, template_name, output):
         from eless.config_templates import (
             list_templates,
             print_template_info,
-            get_template
+            get_template,
         )
         import yaml
-        
+
         if action == "list":
             click.secho("\n📝 Available Templates:", fg="blue", bold=True)
             click.secho("=" * 60, fg="blue")
-            
+
             templates = list_templates()
             for name, description in templates.items():
                 click.secho(f"\n  {name}", fg="green", bold=True)
                 click.echo(f"    {description}")
-            
+
             click.echo("\n" + "=" * 60)
             click.echo("\n💡 Use 'eless template show <name>' for details")
             click.echo("   Use 'eless template create <name>' to create config\n")
-        
+
         elif action == "show":
             if not template_name:
                 click.secho("Error: template name required", fg="red")
                 return
-            
+
             print_template_info(template_name)
-        
+
         elif action == "create":
             if not template_name:
                 click.secho("Error: template name required", fg="red")
                 return
-            
+
             config = get_template(template_name)
-            
+
             # Determine output path
             if output:
                 output_path = Path(output)
             else:
                 output_path = Path.home() / ".eless" / f"{template_name}_config.yaml"
                 output_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             # Save configuration
             with open(output_path, "w") as f:
                 yaml.dump(config, f, default_flow_style=False, indent=2)
-            
-            click.secho(f"\n✓ Created configuration from '{template_name}' template:", fg="green")
+
+            click.secho(
+                f"\n✓ Created configuration from '{template_name}' template:",
+                fg="green",
+            )
             click.secho(f"  {output_path}\n", fg="green", bold=True)
-            
+
             click.echo("To use this configuration:")
             click.echo(f"  eless process /path/to/docs --config {output_path}")
             click.echo()
-    
+
     except ValueError as e:
         click.secho(f"Error: {e}", fg="red")
     except Exception as e:
@@ -1837,27 +1851,28 @@ def template(action, template_name, output):
 @cli.command()
 @click.argument("source", type=click.Path(exists=True), required=True)
 @click.option(
-    "--database", "-db",
+    "--database",
+    "-db",
     default="chroma",
     help="Database to use (default: chroma)",
 )
 def go(source, database):
     """
     🚀 Quick process command - just works!
-    
+
     Simplest way to process documents with sensible defaults.
     Automatically configures itself based on your system.
-    
+
     This command:
       1. Auto-detects optimal settings
       2. Sets up the database
       3. Processes your documents
       4. Shows progress and results
-    
+
     Examples:
         eless go documents/
         eless go myfile.pdf --database qdrant
-    
+
     \b
     For more control, use: eless process <source> [OPTIONS]
     """
@@ -1866,56 +1881,60 @@ def go(source, database):
         from eless.eless_pipeline import ElessPipeline
         from eless.core.config_loader import ConfigLoader
         from eless.core.default_config import get_default_config
-        
+
         click.secho("\n🚀 ELESS Quick Process", fg="blue", bold=True)
         click.secho("=" * 60, fg="blue")
-        
+
         # Load base config
         base_config = get_default_config()
-        
+
         # Auto-configure
         auto_settings = generate_auto_config()
-        
+
         # Merge auto settings with base config
         base_config.update(auto_settings)
-        
+
         # Set database
         base_config.setdefault("databases", {})
         base_config["databases"]["targets"] = [database]
-        
+
         # Show what we're doing
         click.secho(f"\n📁 Source: {source}", fg="cyan")
         click.secho(f"💾 Database: {database}", fg="cyan")
-        click.secho(f"⚙️  Batch size: {base_config['embedding']['batch_size']}", fg="cyan")
+        click.secho(
+            f"⚙️  Batch size: {base_config['embedding']['batch_size']}", fg="cyan"
+        )
         click.secho(f"🖥️  Device: {base_config['embedding']['device']}", fg="cyan")
         click.secho()
-        
+
         # Create and run pipeline
         click.secho("Processing...", fg="yellow")
         pipeline = ElessPipeline(base_config)
         pipeline.run_process(source)
-        
+
         # Show results
         click.secho("\n✓ Processing complete!", fg="green", bold=True)
-        
+
         # Show status
         files = pipeline.state_manager.get_all_files()
         loaded = [f for f in files if f["status"] == "LOADED"]
         errors = [f for f in files if f["status"] == "ERROR"]
-        
+
         click.secho(f"\n📊 Results:", fg="blue", bold=True)
         click.secho(f"  Processed: {len(loaded)} files")
         if errors:
             click.secho(f"  Errors: {len(errors)} files", fg="yellow")
-        
+
         click.secho(f"\n💡 Next steps:", fg="cyan")
         click.secho(f"  View status: eless status --all")
         click.secho(f"  Check logs: ls .eless_logs/")
         click.secho()
-        
+
     except KeyboardInterrupt:
         click.secho("\n\n⚠️  Processing interrupted", fg="yellow")
-        click.secho("💡 Resume with: eless process {} --resume\n".format(source), fg="cyan")
+        click.secho(
+            "💡 Resume with: eless process {} --resume\n".format(source), fg="cyan"
+        )
     except Exception as e:
         click.secho(f"\n❌ Error: {e}", fg="red")
         click.secho("💡 Run 'eless doctor' to diagnose issues\n", fg="cyan")

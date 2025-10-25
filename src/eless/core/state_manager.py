@@ -52,35 +52,38 @@ class StateManager:
     def _save_manifest(self):
         """
         Writes the current state of the manifest back to disk atomically.
-        
+
         Uses atomic write pattern to prevent corruption:
         1. Write to temporary file
         2. Create backup of existing manifest
         3. Atomically replace with new file
         """
+
         def path_converter(obj):
             if isinstance(obj, Path):
                 return str(obj)
-            raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+            raise TypeError(
+                f"Object of type {obj.__class__.__name__} is not JSON serializable"
+            )
 
         # Write to temporary file first
         tmp_path = self.manifest_path.with_suffix(".tmp")
         backup_path = self.manifest_path.with_suffix(".bak")
-        
+
         try:
             # Write to temp file
             with open(tmp_path, "w") as f:
                 json.dump(self.manifest, f, indent=4, default=path_converter)
-            
+
             # Backup existing manifest if it exists
             if self.manifest_path.exists():
                 if backup_path.exists():
                     backup_path.unlink()
                 self.manifest_path.rename(backup_path)
-            
+
             # Atomic rename (on same filesystem, this is atomic)
             tmp_path.rename(self.manifest_path)
-            
+
         except Exception as e:
             logger.error(f"Failed to save manifest: {e}")
             # Clean up temp file if it exists
@@ -109,14 +112,14 @@ class StateManager:
     ):
         """
         Adds a new file or updates the status and metadata of an existing one.
-        
+
         Args:
             file_hash: SHA-256 hash of the file
             status: New status (use FileStatus constants)
             file_path: Optional file path. If None, existing path is preserved.
                       Required for new files.
             metadata: Optional metadata to merge
-            
+
         Raises:
             ValueError: If file_path is None for a new file
         """
@@ -152,7 +155,9 @@ class StateManager:
                 if metadata and "error" in metadata:
                     self.manifest[file_hash]["last_error"] = metadata["error"]
                 else:
-                    self.manifest[file_hash]["last_error"] = self._get_current_timestamp()
+                    self.manifest[file_hash][
+                        "last_error"
+                    ] = self._get_current_timestamp()
             elif status in [FileStatus.LOADED, FileStatus.EMBEDDED]:
                 # Reset error count on successful status
                 self.manifest[file_hash]["error_count"] = 0

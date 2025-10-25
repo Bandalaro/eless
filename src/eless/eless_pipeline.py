@@ -73,7 +73,9 @@ class ElessPipeline:
             db_loader_initialized = True
         except Exception as e:
             logger.error(f"Failed to initialize database connections: {e}")
-            logger.warning("Continuing with processing but data will not be persisted to databases")
+            logger.warning(
+                "Continuing with processing but data will not be persisted to databases"
+            )
 
         try:
             # STAGE 1: Scanning and Dispatching
@@ -132,7 +134,7 @@ class ElessPipeline:
 
         processed_files = set()
         for chunks_path in chunk_files:
-            file_hash = chunks_path.stem.replace('.chunks', '')
+            file_hash = chunks_path.stem.replace(".chunks", "")
             try:
                 # Load chunks
                 with open(chunks_path, "rb") as f:
@@ -147,16 +149,20 @@ class ElessPipeline:
                 # Combine into format for db_loader
                 vector_dicts = []
                 for i, chunk in enumerate(chunks):
-                    vector_dicts.append({
-                        "id": f"{file_hash}-{i}",
-                        "vector": vectors[i].tolist(),
-                        "metadata": chunk["metadata"]
-                    })
+                    vector_dicts.append(
+                        {
+                            "id": f"{file_hash}-{i}",
+                            "vector": vectors[i].tolist(),
+                            "metadata": chunk["metadata"],
+                        }
+                    )
 
                 if vector_dicts:
                     self.db_loader.batch_upsert(vector_dicts)
                     processed_files.add(file_hash)
-                    logger.info(f"Resumed loading {len(vector_dicts)} vectors for {file_hash[:8]}")
+                    logger.info(
+                        f"Resumed loading {len(vector_dicts)} vectors for {file_hash[:8]}"
+                    )
 
             except Exception as e:
                 logger.error(f"Failed to resume file {file_hash[:8]}: {e}")
@@ -165,6 +171,8 @@ class ElessPipeline:
         for file_hash in processed_files:
             current_file_info = self.state_manager.manifest.get(file_hash, {})
             current_path = current_file_info.get("path", "N/A")
-            self.state_manager.add_or_update_file(file_hash, FileStatus.LOADED, file_path=current_path)
+            self.state_manager.add_or_update_file(
+                file_hash, FileStatus.LOADED, file_path=current_path
+            )
 
         logger.info("Resume operation completed.")

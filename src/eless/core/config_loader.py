@@ -95,7 +95,7 @@ class ConfigLoader:
             final_config = deep_merge(final_config, cli_overrides)
             if cli_overrides:
                 logger.info("Applied overrides from CLI arguments.")
-            
+
         return final_config
 
     def load_config(self, config_path: Path) -> Dict[str, Any]:
@@ -105,79 +105,95 @@ class ConfigLoader:
     def validate_config(self, config: Dict[str, Any]) -> None:
         """Validate configuration values and relationships."""
         # Validate parallel processing config
-        parallel = config.get('parallel_processing', {})
-        if 'max_workers' in parallel:
-            if not isinstance(parallel['max_workers'], int):
+        parallel = config.get("parallel_processing", {})
+        if "max_workers" in parallel:
+            if not isinstance(parallel["max_workers"], int):
                 raise TypeError("max_workers must be an integer")
-            if parallel['max_workers'] < 1:
+            if parallel["max_workers"] < 1:
                 raise ValueError("max_workers must be greater than 0")
-            if parallel['max_workers'] > 64:
+            if parallel["max_workers"] > 64:
                 raise ValueError("max_workers must be less than or equal to 64")
-        if 'mode' in parallel and parallel['mode'] not in ['thread', 'process', 'auto']:
-            raise ValueError("parallel processing mode must be 'thread', 'process', or 'auto'")
+        if "mode" in parallel and parallel["mode"] not in ["thread", "process", "auto"]:
+            raise ValueError(
+                "parallel processing mode must be 'thread', 'process', or 'auto'"
+            )
 
         # Validate embedding config
-        embedding = config.get('embedding', {})
-        if 'batch_size' not in embedding:
+        embedding = config.get("embedding", {})
+        if "batch_size" not in embedding:
             raise KeyError("embedding.batch_size is required")
-        if not isinstance(embedding['batch_size'], int):
+        if not isinstance(embedding["batch_size"], int):
             raise TypeError("embedding.batch_size must be an integer")
-        if embedding['batch_size'] < 1:
+        if embedding["batch_size"] < 1:
             raise ValueError("embedding batch_size must be greater than 0")
-        if 'normalize' in embedding and not isinstance(embedding['normalize'], bool):
+        if "normalize" in embedding and not isinstance(embedding["normalize"], bool):
             raise TypeError("embedding.normalize must be a boolean")
 
         # Validate resource limits
-        limits = config.get('resource_limits', {})
-        if 'memory_warning_percent' in limits:
-            if not isinstance(limits['memory_warning_percent'], (int, float)):
+        limits = config.get("resource_limits", {})
+        if "memory_warning_percent" in limits:
+            if not isinstance(limits["memory_warning_percent"], (int, float)):
                 raise TypeError("memory_warning_percent must be a number")
-            if not 0 <= limits['memory_warning_percent'] <= 100:
+            if not 0 <= limits["memory_warning_percent"] <= 100:
                 raise ValueError("memory_warning_percent must be between 0 and 100")
-        if 'min_memory_mb' in limits:
-            if not isinstance(limits['min_memory_mb'], (int, float)):
+        if "min_memory_mb" in limits:
+            if not isinstance(limits["min_memory_mb"], (int, float)):
                 raise TypeError("min_memory_mb must be a number")
-            if limits['min_memory_mb'] < 0:
+            if limits["min_memory_mb"] < 0:
                 raise ValueError("min_memory_mb cannot be negative")
 
         # Validate chunking config
-        chunking = config.get('chunking', {})
-        if 'chunk_size' in chunking:
-            if not isinstance(chunking['chunk_size'], int):
+        chunking = config.get("chunking", {})
+        if "chunk_size" in chunking:
+            if not isinstance(chunking["chunk_size"], int):
                 raise TypeError("chunk_size must be an integer")
-            if chunking['chunk_size'] > 10000:
+            if chunking["chunk_size"] > 10000:
                 raise ValueError("chunk_size must be less than or equal to 10000")
-        if 'chunk_overlap' in chunking:
-            if not isinstance(chunking['chunk_overlap'], int):
+        if "chunk_overlap" in chunking:
+            if not isinstance(chunking["chunk_overlap"], int):
                 raise TypeError("chunk_overlap must be an integer")
-            if chunking['chunk_overlap'] < 0:
+            if chunking["chunk_overlap"] < 0:
                 raise ValueError("chunk_overlap must be greater than or equal to 0")
 
         # Validate chunking vs batch size relationship
-        if ('chunk_size' in chunking and 'batch_size' in embedding and
-            chunking['chunk_size'] < embedding['batch_size']):
+        if (
+            "chunk_size" in chunking
+            and "batch_size" in embedding
+            and chunking["chunk_size"] < embedding["batch_size"]
+        ):
             raise ValueError("chunk_size must be greater than or equal to batch_size")
 
         # Validate cache config
-        cache = config.get('cache', {})
-        if 'directory' in cache and not Path(cache['directory']).parent.exists():
-            raise ValueError(f"Parent directory for cache does not exist: {cache['directory']}")
-        if 'retention_days' in cache and cache['retention_days'] < 1:
+        cache = config.get("cache", {})
+        if "directory" in cache and not Path(cache["directory"]).parent.exists():
+            raise ValueError(
+                f"Parent directory for cache does not exist: {cache['directory']}"
+            )
+        if "retention_days" in cache and cache["retention_days"] < 1:
             raise ValueError("retention_days must be greater than 0")
 
         # Validate databases config
-        databases = config.get('databases', {})
-        if 'batch_size' in databases:
-            if not isinstance(databases['batch_size'], int):
+        databases = config.get("databases", {})
+        if "batch_size" in databases:
+            if not isinstance(databases["batch_size"], int):
                 raise TypeError("databases.batch_size must be an integer")
-            if databases['batch_size'] < 1:
+            if databases["batch_size"] < 1:
                 raise ValueError("databases batch_size must be greater than 0")
-        if 'targets' in databases:
-            for target in databases['targets']:
-                if target not in ['sqlite', 'postgresql', 'chroma', 'faiss', 'qdrant', 'cassandra']:
+        if "targets" in databases:
+            for target in databases["targets"]:
+                if target not in [
+                    "sqlite",
+                    "postgresql",
+                    "chroma",
+                    "faiss",
+                    "qdrant",
+                    "cassandra",
+                ]:
                     raise ValueError(f"Unsupported database type: {target}")
 
-    def merge_configs(self, base_config: Dict[str, Any], override_config: Dict[str, Any]) -> Dict[str, Any]:
+    def merge_configs(
+        self, base_config: Dict[str, Any], override_config: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Merge two configurations with override taking precedence."""
         merged = base_config.copy()
         return deep_merge(merged, override_config)
@@ -197,9 +213,9 @@ class ConfigLoader:
 
         # Environment variable mapping
         env_mapping = {
-            'ELESS_CACHE_DIR': ('cache', 'directory'),
-            'ELESS_DB_PATH': ('database', 'path'),
-            'ELESS_MAX_WORKERS': ('parallel_processing', 'max_workers'),
+            "ELESS_CACHE_DIR": ("cache", "directory"),
+            "ELESS_DB_PATH": ("database", "path"),
+            "ELESS_MAX_WORKERS": ("parallel_processing", "max_workers"),
         }
 
         # Apply environment variables
@@ -207,7 +223,7 @@ class ConfigLoader:
             if env_var in os.environ:
                 if section not in config:
                     config[section] = {}
-                if key == 'max_workers':
+                if key == "max_workers":
                     config[section][key] = int(os.environ[env_var])
                 else:
                     config[section][key] = os.environ[env_var]
