@@ -10,6 +10,7 @@ import yaml
 from unittest.mock import MagicMock, patch
 from multiprocessing import Process, Queue
 
+<<<<<<< HEAD
 from src.eless.eless_pipeline import ElessPipeline
 from src.eless.core.state_manager import StateManager
 from src.eless.core.error_handler import ErrorHandler
@@ -20,6 +21,12 @@ from src.eless.database.qdrant_connector import QdrantConnector
 from src.eless.database.postgresql_connector import PostgreSQLConnector
 from src.eless.database.db_loader import DatabaseLoader
 from unittest.mock import mock_open
+=======
+from eless.eless_pipeline import ElessPipeline
+from eless.core.state_manager import StateManager
+from eless.core.error_handler import ErrorHandler
+from eless.core.archiver import Archiver
+>>>>>>> 11438b7cdd044f7879749246c2da07d58e109b9c
 
 
 class TestErrorHandling(unittest.TestCase):
@@ -119,7 +126,11 @@ class TestErrorHandling(unittest.TestCase):
                 self.pipeline.dispatcher.streaming_processor, "should_use_streaming", return_value=True
             ):
                 with patch(
+<<<<<<< HEAD
                     "src.eless.processing.streaming_processor.StreamingDocumentProcessor.process_large_text_file"
+=======
+                    "eless.processing.streaming_processor.StreamingDocumentProcessor.process_large_text_file"
+>>>>>>> 11438b7cdd044f7879749246c2da07d58e109b9c
                 ) as mock_process:
                     mock_process.side_effect = MemoryError("Out of memory")
 
@@ -152,7 +163,11 @@ class TestErrorHandling(unittest.TestCase):
 
         # Mock exception during chunking
         with patch(
+<<<<<<< HEAD
             "src.eless.processing.dispatcher.chunk_text"
+=======
+            "eless.processing.dispatcher.chunk_text"
+>>>>>>> 11438b7cdd044f7879749246c2da07d58e109b9c
         ) as mock_chunk:
             mock_chunk.side_effect = Exception("Processing interrupted")
 
@@ -176,7 +191,11 @@ class TestErrorHandling(unittest.TestCase):
         """Test recovery from database errors."""
         # Mock database error
         with patch(
+<<<<<<< HEAD
             "src.eless.database.db_loader.DatabaseLoader._initialize_connectors"
+=======
+            "eless.database.db_loader.DatabaseLoader._initialize_connectors"
+>>>>>>> 11438b7cdd044f7879749246c2da07d58e109b9c
         ) as mock_db:
             mock_db.side_effect = Exception("Database connection error")
 
@@ -274,6 +293,7 @@ class TestErrorHandling(unittest.TestCase):
         status = self.state_manager.get_status(file_hash)
         self.assertEqual(status, "LOADED")
 
+<<<<<<< HEAD
     def test_qdrant_connection_error(self):
         """Test Qdrant connection error handling."""
         from src.eless.database.qdrant_connector import QdrantConnector
@@ -449,6 +469,8 @@ class TestErrorHandling(unittest.TestCase):
             # Should initialize but with no active connectors
             self.assertEqual(len(db_loader.active_connectors), 0)
 
+=======
+>>>>>>> 11438b7cdd044f7879749246c2da07d58e109b9c
 
 if __name__ == "__main__":
     unittest.main()
