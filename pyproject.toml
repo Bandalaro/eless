@@ -33,46 +33,12 @@ classifiers = [
 ]
 keywords = ["rag", "embedding", "vector-database", "nlp", "ai", "document-processing"]
 
-# Core dependencies
+# All mandatory dependencies for full functionality
 dependencies = [
     "click>=8.0.0",
     "PyYAML>=6.0",
     "numpy>=1.21.0",
     "psutil>=5.8.0",
-    "sentence-transformers>=2.2.0",
-]
-
-# Optional dependencies for different features
-[project.optional-dependencies]
-# Embedding models
-embeddings = [
-    "sentence-transformers>=2.2.0",
-    "torch>=1.9.0",
-]
-
-# Vector databases
-databases = [
-    "chromadb>=0.4.0",
-    "langchain-community>=0.0.10",
-    "langchain-core>=0.1.0",
-    "qdrant-client>=1.6.0",
-    "faiss-cpu>=1.7.0",
-    "psycopg2-binary>=2.9.0",
-    "cassandra-driver>=3.28.0",
-]
-
-# Document parsing
-parsers = [
-    "pypdf>=3.17.0",
-    "python-docx>=0.8.11",
-    "openpyxl>=3.1.0",
-    "pandas>=1.5.0",
-    "beautifulsoup4>=4.11.0",
-    "lxml>=4.9.0",
-]
-
-# Full installation with all features
-full = [
     "sentence-transformers>=2.2.0",
     "torch>=1.9.0",
     "chromadb>=0.4.0",

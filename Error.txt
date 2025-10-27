@@ -1,0 +1,57 @@
+ELESS PACKAGE ERROR LOG - ALL 12 ERRORS ENCOUNTERED
+
+1. Table parser not available - install pandas and openpyxl
+   → Warning: Optional dependency missing
+   → Fix: pip install pandas openpyxl
+
+2. KeyError: 'cache'
+   → File: state_manager.py
+   → Cause: Missing 'cache' section in config
+   → Fix: Add 'cache:' block
+
+3. KeyError: 'manifest_file'
+   → File: state_manager.py
+   → Cause: Missing 'manifest_file' inside cache
+   → Fix: Add 'manifest_file: .eless_manifest.json'
+
+4. KeyError: 'model'
+   → File: model_loader.py
+   → Cause: Used 'model_name' instead of 'model'
+   → Fix: Rename 'model_name:' → 'model:'
+
+5. KeyError: 'batch_size'
+   → File: db_loader.py
+   → Cause: Missing 'batch_size' under 'databases'
+   → Fix: Add 'batch_size: 50' under 'databases:'
+
+6. KeyError: 'dimension'
+   → File: db_loader.py
+   → Cause: Missing 'dimension' under 'embedding'
+   → Fix: Add 'dimension: 384'
+
+7. TypeError: ElessPipeline.run_process() got an unexpected keyword argument 'resume'
+   → File: run_rag_demo.py
+   → Cause: Passed resume=True to run_process()
+   → Fix: Remove resume=True; use 'cache.resume: true'
+
+8. Error during processing of ...: 'chunk_overlap'
+   → Multiple files
+   → Cause: Used 'overlap' instead of 'chunk_overlap'
+   → Fix: Rename 'overlap:' → 'chunk_overlap:'
+
+9. AttributeError: 'NoneType' object has no attribute 'strip'
+   → File: run_rag_demo.py
+   → Cause: Querying empty/None document chunks
+   → Fix: Add safety check: doc or "(empty)"
+
+10. LOADED (0 chunks) on all files
+    → Cause: chunk_size too large → no splits
+    → Fix: Reduce chunk_size to 50 or lower
+
+11. incorrect startxref pointer(1) / Failed to extract text from sample.pdf
+    → Cause: pypdf not properly loaded or malformed PDF
+    → Fix: pip install pypdf; use valid PDF with real text
+
+12. Total vectors in DB: 35 but all results show (empty chunk)
+    → Cause: Parser extracts no text → empty strings chunked and embedded
+    → Fix: Reinstall eless from source + use 'strategy: fixed' + minimal text files
