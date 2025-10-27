@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eless"
-version = "1.0.0"
+version = "1.0.2"
 authors = [
     {name = "Bandalaro", email = "bandalaro@users.noreply.github.com"},
 ]
@@ -57,6 +57,7 @@ dependencies = [
 ]
 
 # Development dependencies
+[project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
     "black>=22.0.0",

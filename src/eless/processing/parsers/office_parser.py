@@ -24,7 +24,7 @@ def parse_docx(file_path: Path) -> str:
 
     try:
         # Load the document
-        document = Document(file_path)
+        document = Document(str(file_path))
 
         # 1. Extract text from paragraphs
         for paragraph in document.paragraphs:

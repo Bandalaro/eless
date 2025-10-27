@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: eless
-Version: 1.0.0
+Version: 1.0.2
 Summary: Evolving Low-resource Embedding and Storage System - A resilient RAG data processing pipeline with comprehensive logging, multi-database support, and CLI interface.
 Author: ELESS Team
 Author-email: Bandalaro <bandalaro@users.noreply.github.com>
@@ -35,40 +35,20 @@ Requires-Dist: PyYAML>=6.0
 Requires-Dist: numpy>=1.21.0
 Requires-Dist: psutil>=5.8.0
 Requires-Dist: sentence-transformers>=2.2.0
-Provides-Extra: embeddings
-Requires-Dist: sentence-transformers>=2.2.0; extra == "embeddings"
-Requires-Dist: torch>=1.9.0; extra == "embeddings"
-Provides-Extra: databases
-Requires-Dist: chromadb>=0.4.0; extra == "databases"
-Requires-Dist: langchain-community>=0.0.10; extra == "databases"
-Requires-Dist: langchain-core>=0.1.0; extra == "databases"
-Requires-Dist: qdrant-client>=1.6.0; extra == "databases"
-Requires-Dist: faiss-cpu>=1.7.0; extra == "databases"
-Requires-Dist: psycopg2-binary>=2.9.0; extra == "databases"
-Requires-Dist: cassandra-driver>=3.28.0; extra == "databases"
-Provides-Extra: parsers
-Requires-Dist: pypdf>=3.17.0; extra == "parsers"
-Requires-Dist: python-docx>=0.8.11; extra == "parsers"
-Requires-Dist: openpyxl>=3.1.0; extra == "parsers"
-Requires-Dist: pandas>=1.5.0; extra == "parsers"
-Requires-Dist: beautifulsoup4>=4.11.0; extra == "parsers"
-Requires-Dist: lxml>=4.9.0; extra == "parsers"
-Provides-Extra: full
-Requires-Dist: sentence-transformers>=2.2.0; extra == "full"
-Requires-Dist: torch>=1.9.0; extra == "full"
-Requires-Dist: chromadb>=0.4.0; extra == "full"
-Requires-Dist: langchain-community>=0.0.10; extra == "full"
-Requires-Dist: langchain-core>=0.1.0; extra == "full"
-Requires-Dist: qdrant-client>=1.6.0; extra == "full"
-Requires-Dist: faiss-cpu>=1.7.0; extra == "full"
-Requires-Dist: psycopg2-binary>=2.9.0; extra == "full"
-Requires-Dist: cassandra-driver>=3.28.0; extra == "full"
-Requires-Dist: pypdf>=3.17.0; extra == "full"
-Requires-Dist: python-docx>=0.8.11; extra == "full"
-Requires-Dist: openpyxl>=3.1.0; extra == "full"
-Requires-Dist: pandas>=1.5.0; extra == "full"
-Requires-Dist: beautifulsoup4>=4.11.0; extra == "full"
-Requires-Dist: lxml>=4.9.0; extra == "full"
+Requires-Dist: torch>=1.9.0
+Requires-Dist: chromadb>=0.4.0
+Requires-Dist: langchain-community>=0.0.10
+Requires-Dist: langchain-core>=0.1.0
+Requires-Dist: qdrant-client>=1.6.0
+Requires-Dist: faiss-cpu>=1.7.0
+Requires-Dist: psycopg2-binary>=2.9.0
+Requires-Dist: cassandra-driver>=3.28.0
+Requires-Dist: pypdf>=3.17.0
+Requires-Dist: python-docx>=0.8.11
+Requires-Dist: openpyxl>=3.1.0
+Requires-Dist: pandas>=1.5.0
+Requires-Dist: beautifulsoup4>=4.11.0
+Requires-Dist: lxml>=4.9.0
 Provides-Extra: dev
 Requires-Dist: pytest>=7.0.0; extra == "dev"
 Requires-Dist: black>=22.0.0; extra == "dev"

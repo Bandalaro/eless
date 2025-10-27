@@ -5,3 +5,16 @@ dist/
 __pycache__/
 *.pyc
 .eless_logs/
+
+# Cache and database files
+.eless_cache/
+.eless_chroma/
+.eless_faiss/
+eless_cache/
+
+# Local config and test files
+Production/
+config.yaml
+multi_db_embedding_test.py
+simple_embedding_test.py
+test_embedding.py
